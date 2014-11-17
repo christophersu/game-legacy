@@ -21,10 +21,6 @@ public class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void flipTokens() {
-		throw new UnsupportedOperationException();
-	}
-	
 	public void switchToken(User user, Location location, Token nextToken) {
 		throw new UnsupportedOperationException();
 	}
@@ -37,15 +33,19 @@ public class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void useToken(User user, Token token, Location target) {
+	public void chooseUnitforAction(Unit unit) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void attackWith(Set<Unit> units) {
+	public void useToken(User user, Token token, Location tokenLocation, Location target) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void support(User supportingUser, Token token, User supportedUser) {
+	public void resetToken(User user, Token token) {
+		throw new UnsupportedOperationException();
+	}
+	
+	public void support(User supportingUser, Location supportingLocation, User supportedUser) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -57,21 +57,11 @@ public class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void flipCombatCards() {
+	public void retreat(User defeatedUser, Unit retreatingUnit, Location target) {
 		throw new UnsupportedOperationException();
 	}
 	
-	//1 unit at a time?
-	public void retreat(User defeatedUser, Set<Unit> units, Location location) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public void doneRetreating() {
-		throw new UnsupportedOperationException();
-	}
-	
-	//1 unit at a time?
-	public void spawnUnits(User user, Location location, Set<Unit> units) {
+	public void spawnUnit(User user, Location location, Unit unit) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -79,11 +69,15 @@ public class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void revealBids() {
+	public void breakTie(User loser, User winner) {
+		throw new UnsupportedOperationException();
+	}
+	
+	public void nextState() {
 		throw new UnsupportedOperationException();
 	}
 
-	public GameState getGameState() {
+	public Snapshot getSnapshot() {
 		throw new UnsupportedOperationException();
 	}
 }
