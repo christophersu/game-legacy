@@ -73,11 +73,11 @@ public class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void nextState() {
+	public void setUserReady(User user, boolean isReady) {
 		throw new UnsupportedOperationException();
 	}
 
-	public Snapshot getSnapshot() {
+	public Snapshot getSnapshotForUser(User user) {
 		throw new UnsupportedOperationException();
 	}
 }
