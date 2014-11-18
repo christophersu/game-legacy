@@ -1,11 +1,7 @@
 package com.boardgame.game;
 
 public class Game {
-	public Game() {
-		throw new UnsupportedOperationException();
-	}
-	
-	public void addUser(User user) {
+	public Game(int numPlayers) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -13,15 +9,15 @@ public class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void placeToken(User user, Token token, Location location) {
+	public void placeToken(Player player, Token token, Location location) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void removeToken(User user, Location location) {
+	public void removeToken(Player player, Location location) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void switchToken(User user, Location location, Token nextToken) {
+	public void switchToken(Player player, Location location, Token nextToken) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -37,47 +33,47 @@ public class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void useToken(User user, Token token, Location tokenLocation, Location target) {
+	public void useToken(Player player, Token token, Location tokenLocation, Location target) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void resetToken(User user, Token token) {
+	public void resetToken(Player player, Token token) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void support(User supportingUser, Location supportingLocation, User supportedUser) {
+	public void support(Player player, Location supportingLocation, Player player) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void useCombatCard(User user, CombatCard combatCard) {
+	public void useCombatCard(Player player, CombatCard combatCard) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void useCombatBonus(User user) {
+	public void useCombatBonus(Player player) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void retreat(User defeatedUser, Unit retreatingUnit, Location target) {
+	public void retreat(Player player defeatedPlayer, Unit retreatingUnit, Location target) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void spawnUnit(User user, Location location, Unit unit) {
+	public void spawnUnit(Player player, Location location, Unit unit) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void bid(User user, int bid) {
+	public void bid(Player player, int bid) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void breakTie(User loser, User winner) {
+	public void breakTie(Player player, User winner) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void setUserReady(User user, boolean isReady) {
+	public void setUserReady(Player player, boolean isReady) {
 		throw new UnsupportedOperationException();
 	}
 
-	public Snapshot getSnapshotForUser(User user) {
+	public Snapshot getSnapshotForUser(Player player) {
 		throw new UnsupportedOperationException();
 	}
 }
