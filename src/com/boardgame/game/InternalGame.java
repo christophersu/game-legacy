@@ -1,11 +1,19 @@
 package com.boardgame.game;
 
 final class InternalGame {
-	InternalGame() {
+	InternalGame(int numPlayers) {
 		throw new UnsupportedOperationException();
 	}
 	
 	void startGame() {
+		throw new UnsupportedOperationException();
+	}
+	
+	void addPlayer(int player, int faction) {
+		throw new UnsupportedOperationException();
+	}
+	
+	void removePlayer(int player) {
 		throw new UnsupportedOperationException();
 	}
 	
