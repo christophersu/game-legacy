@@ -35,7 +35,7 @@ public final class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public Set<Integer> getTokenChoices() {
+	public Set<Integer> getTokenChoices(int player) {
 		throw new UnsupportedOperationException();
 	}
 	
