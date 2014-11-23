@@ -40,14 +40,35 @@ final class Location {
 	 * supply, nonnegative
 	 * @param invest  the amount of investment potential for the owner, 
 	 * nonnegative
+	 * @throws IllegalArgumentException  if name is null
+	 * @throws IllegalArgumentException  if terrain is null
+	 * @throws IllegalArgumentException  if baseStrength is null
+	 * @throws IllegalArgumentException  if supply is negative
+	 * @throws IllegalArgumentException  if invest is negative
 	 */
 	Location(String name, Terrain terrain, BaseStrength baseStrength, 
 			int supply, int invest) {
-		assert(name != null);
-		assert(terrain != null);
-		assert(baseStrength != null);
-		assert(supply >= 0);
-		assert(invest >= 0);
+		if (name == null) {
+			throw new IllegalArgumentException("Name was null.");
+		}
+		
+		if (terrain == null) {
+			throw new IllegalArgumentException("Terrain was null.");
+		}
+		
+		if (baseStrength == null) {
+			throw new IllegalArgumentException("Base strength was null.");
+		}
+		
+		if (supply < 0) {
+			throw new IllegalArgumentException("Supply was negative: " + 
+					supply);
+		}
+		
+		if (invest < 0) {
+			throw new IllegalArgumentException("Invest was negative: " + 
+					invest);
+		}
 		
 		this.name = name;
 		this.terrain = terrain;
@@ -61,13 +82,20 @@ final class Location {
 	}
 	
 	/**
-	 * Adds the given unit to this location. The location must be owned by 
+	 * Adds the given unit to this location. This location must be owned by 
 	 * somebody.
 	 * @param unit  the unit to be added, not null
+	 * @throws IllegalArgumentException  if unit is null
+	 * @throws IllegalStateException  if there is no owner
 	 */
 	void addUnit(AbstractUnit unit) {
-		assert(unit != null);
-		assert(owner != null);
+		if (unit == null) {
+			throw new IllegalArgumentException("Unit was null.");
+		}
+		
+		if (owner == null) {
+			throw new IllegalStateException("No owner.");
+		}
 		
 		boolean result = units.add(unit);
 		
@@ -75,20 +103,32 @@ final class Location {
 	}
 	
 	/**
-	 * Removes the given unit from this location
+	 * Removes the given unit from this location. This location must be owned by
+	 * somebody.
 	 * @param unit  the unit to be removed, not null
-	 * @return whether or not the unit was removed
+	 * @throws IllegalArgumentException  if unit is null
+	 * @throws IllegalStateException if there is no owner
+	 * @throws IllegalStateException if unit was not at this location beforehand
 	 */
-	boolean removeUnit(AbstractUnit unit) {
-		assert(unit != null);
+	void removeUnit(AbstractUnit unit) {
+		if (unit == null) {
+			throw new IllegalArgumentException("Unit was null.");
+		}
+		
+		if (owner == null) {
+			throw new IllegalStateException("No owner.");
+		}
 		
 		boolean result = units.remove(unit);
+		
+		if (!result) {
+			throw new IllegalStateException("Unit was not at location: " + 
+					unit);
+		}
 		
 		if (units.isEmpty()) {
 			owner = null;
 		}
-		
-		return result;
 	}
 	
 	/**
@@ -100,10 +140,40 @@ final class Location {
 	}
 	
 	/**
-	 * Sets the owner of this location to be the given owner
-	 * @param owner  the next owner of this location, null means no owner
+	 * Places the action token at this location to the given one. The location
+	 * must be owned by somebody.
+	 * @param actionToken  the action token that will be at this location, not
+	 * null
+	 * @throws IllegalArgumentException  if actionToken is null
+	 * @throws IllegalStateException  if there is no owner
 	 */
-	void setOwner(Player owner) {
+	void placeActionToken(AbstractActionToken actionToken) {
+		if (actionToken == null) {
+			throw new IllegalArgumentException("Action token was null.");
+		}
+		
+		if (owner == null) {
+			throw new IllegalStateException("No owner.");
+		}
+		
+		this.actionToken = actionToken;
+	}
+	
+	/**
+	 * Changes the owner of this location to be the given owner
+	 * @param owner  the next owner of this location, null means no owner
+	 * @throws IllegalStateException if the next owner is the same as this owner
+	 * @throws IllegalStateException if there are still units at this location
+	 */
+	void changeOwner(Player owner) {
+		if (this.owner == owner) {
+			throw new IllegalStateException("Owner already owns this.");
+		}
+		
+		if (hasUnits()) {
+			throw new IllegalStateException("There are still units.");
+		}
+		
 		this.owner = owner;
 	}
 	
@@ -116,24 +186,11 @@ final class Location {
 	}
 	
 	/**
-	 * Places the action token at this location to the given one. The location
-	 * must be owned by somebody.
-	 * @param actionToken  the action token that will be at this location, not
-	 * null
-	 */
-	void placeActionToken(AbstractActionToken actionToken) {
-		assert(actionToken != null);
-		assert(owner != null);
-		
-		this.actionToken = actionToken;
-	}
-	
-	/**
 	 * Returns the action token at this location, or null if there is none
 	 * @return the action token at this location, or null if there is none
 	 */
 	AbstractActionToken getActionToken() {
-		return this.actionToken;
+		return actionToken;
 	}
 	
 	/**
