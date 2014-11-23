@@ -19,15 +19,17 @@ final class InternalGame {
 		throw new UnsupportedOperationException();
 	}
 	
-	void placeToken(Player player, AbstractActionToken token, AbstractLocation location) {
+	void placeToken(Player player, AbstractActionToken token, 
+			Location location) {
 		throw new UnsupportedOperationException();
 	}
 	
-	void removeToken(Player player, AbstractLocation location) {
+	void removeToken(Player player, Location location) {
 		throw new UnsupportedOperationException();
 	}
 	
-	void switchToken(Player player, AbstractLocation location, AbstractActionToken nextToken) {
+	void switchToken(Player player, Location location, 
+			AbstractActionToken nextToken) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -39,7 +41,8 @@ final class InternalGame {
 		throw new UnsupportedOperationException();
 	}
 	
-	Set<AbstractLocation> getValidLocationTargets(Player player, AbstractActionToken token) {
+	Set<Location> getValidLocationTargets(Player player, 
+			AbstractActionToken token) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -47,7 +50,8 @@ final class InternalGame {
 		throw new UnsupportedOperationException();
 	}
 	
-	void useToken(Player player, AbstractActionToken token, AbstractLocation tokenLocation, AbstractLocation target) {
+	void useToken(Player player, AbstractActionToken token, 
+			Location tokenLocation, Location target) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -55,7 +59,8 @@ final class InternalGame {
 		throw new UnsupportedOperationException();
 	}
 
-	public void support(Player supportingPlayer, AbstractLocation supportingLocation, Player supportedPlayer) {
+	public void support(Player supportingPlayer, Location supportingLocation, 
+			Player supportedPlayer) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -67,11 +72,12 @@ final class InternalGame {
 		throw new UnsupportedOperationException();
 	}
 	
-	void retreat(Player defeatedPlayer, AbstractUnit retreatingUnit, AbstractLocation target) {
+	void retreat(Player defeatedPlayer, AbstractUnit retreatingUnit, 
+			Location target) {
 		throw new UnsupportedOperationException();
 	}
 	
-	void spawnUnit(Player player, AbstractLocation location, AbstractUnit unit) {
+	void spawnUnit(Player player, Location location, AbstractUnit unit) {
 		throw new UnsupportedOperationException();
 	}
 	
