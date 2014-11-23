@@ -7,7 +7,7 @@ import java.util.Collection;
  * Represents a location on the game board.
  * 
  */
-abstract class Location {
+final class Location {
 	private final String name;
 	private final Terrain terrain;
 	private final BaseStrength baseStrength;
