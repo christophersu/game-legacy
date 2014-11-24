@@ -176,7 +176,7 @@ final class Player {
 	
 	/**
 	 * Returns this player's faction
-	 * @return this player's faction
+	 * @return this player's faction, not null
 	 */
 	Faction getFaction() {
 		return faction;
@@ -184,7 +184,7 @@ final class Player {
 	
 	/**
 	 * Returns the combat cards in the player's hand
-	 * @return the combat cards in the player's hand
+	 * @return the combat cards in the player's hand, not null, no null elements
 	 */
 	Set<AbstractCombatCard> getCombatCardsInHand() {
 		return combatCardsInHand;
@@ -192,7 +192,7 @@ final class Player {
 	
 	/**
 	 * Returns the number of combat cards in the player's hand
-	 * @return the number of combat cards in the player's hand
+	 * @return the number of combat cards in the player's hand, nonnegative
 	 */
 	int getNumCombatCardsInHand() {
 		return combatCardsInHand.size();
@@ -200,7 +200,8 @@ final class Player {
 	
 	/**
 	 * Returns the combat cards in the player's discard
-	 * @return the combat cards in the player's discard
+	 * @return the combat cards in the player's discard, not null, no null 
+	 * elements
 	 */
 	Set<AbstractCombatCard> getCombatCardsDiscard() {
 		return combatCardsDiscard;
@@ -208,7 +209,7 @@ final class Player {
 	
 	/**
 	 * Returns the units in the player's hand
-	 * @return the units in the player's hand
+	 * @return the units in the player's hand, not null, no null elements
 	 */
 	Collection<AbstractUnit> getUnitsInHand() {
 		return unitsInHand;
@@ -216,7 +217,8 @@ final class Player {
 	
 	/**
 	 * Returns the amount of cash this player has
-	 * @return the amount of cash this player has
+	 * @return the amount of cash this player has, nonnegative, not greater than
+	 * max cash
 	 */
 	int getCash() {
 		return cash;
@@ -224,7 +226,7 @@ final class Player {
 	
 	/**
 	 * Returns the maximum amount of cash this player may hold.
-	 * @return the maximum amount of cash this player may hold
+	 * @return the maximum amount of cash this player may hold, nonnegative
 	 */
 	int getMaxCash() {
 		return maxCash;

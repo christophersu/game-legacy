@@ -51,7 +51,7 @@ abstract class AbstractCombatCard {
 	
 	/**
 	 * Returns the name of this card
-	 * @return the name of this card
+	 * @return the name of this card, not null
 	 */
 	String getName() {
 		return name;
@@ -59,7 +59,7 @@ abstract class AbstractCombatCard {
 	
 	/**
 	 * Returns the strength of this card
-	 * @return the strength of this card
+	 * @return the strength of this card, not null
 	 */
 	int getStrength() {
 		return strength;
@@ -67,7 +67,7 @@ abstract class AbstractCombatCard {
 	
 	/**
 	 * Returns the killing potential of this card
-	 * @return the killing potential of this card
+	 * @return the killing potential of this card, nonnegative
 	 */
 	int getKillingPotential() {
 		return killingPotential;
@@ -75,7 +75,7 @@ abstract class AbstractCombatCard {
 	
 	/**
 	 * Returns the death defense of this card
-	 * @return the death defense of this card
+	 * @return the death defense of this card, nonnegative
 	 */
 	int getDeathDefense() {
 		return deathDefense;
