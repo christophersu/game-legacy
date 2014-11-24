@@ -1,18 +1,32 @@
 package com.boardgame.game;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.HashSet;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.boardgame.game.Location.BaseStrength;
 import com.boardgame.game.Location.Terrain;
+import com.boardgame.game.Player.Faction;
 
 public class LocationTest {
+	private Player player;
 	private Location location;
 	
-	@Before
+	@BeforeClass
 	public void initialize() {
+		player = new Player(Faction.RED, new HashSet<>(), new HashSet<>(), 0, 
+					20);
+	}
+	
+	@Before
+	public void initializeTest() {
 		location = new Location("location name", Terrain.LAND, 
 				BaseStrength.NORMAL, 1, 2);
 	}
@@ -74,28 +88,28 @@ public class LocationTest {
 	
 	@Test
 	public void testAddOneUnit() {
-		location.changeOwner(new Player());
+		location.changeOwner(player);
 		location.addUnit(new InfantryUnit());
 		assertTrue(location.hasUnits());
 	}
 	
 	@Test(expected=IllegalStateException.class)
 	public void testChangeOwnerWithUnitsLeft() {
-		location.changeOwner(new Player());
+		location.changeOwner(player);
 		location.addUnit(new InfantryUnit());
 		location.changeOwner(null);
 	}
 	
 	@Test
 	public void testRemoveNonExistentUnit() {
-		location.changeOwner(new Player());
+		location.changeOwner(player);
 		assertFalse(location.removeUnit(new InfantryUnit()));
 	}
 	
 	@Test
 	public void testRemoveAddedUnit() {
 		AbstractUnit unit = new InfantryUnit();
-		location.changeOwner(new Player());
+		location.changeOwner(player);
 		location.addUnit(unit);
 		assertTrue(location.removeUnit(unit));
 		assertFalse(location.hasUnits());
@@ -110,7 +124,7 @@ public class LocationTest {
 	@Test
 	public void testPlaceToken() {
 		assertNull(location.getActionToken());
-		location.changeOwner(new Player());
+		location.changeOwner(player);
 		AbstractActionToken token = new BlitzToken(true);
 		location.placeActionToken(token);
 		assertEquals(token, location.getActionToken());

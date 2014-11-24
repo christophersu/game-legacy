@@ -4,9 +4,9 @@ import java.util.Set;
 
 final class InternalGame {
 	//the minimum number of players for a game
-	public static final int MIN_PLAYERS = 6;
+	static final int MIN_PLAYERS = 6;
 	//the maximum number of players for a game
-	public static final int MAX_PLAYERS = 6;
+	static final int MAX_PLAYERS = 6;
 	
 	private int numPlayers;
 	
@@ -20,15 +20,15 @@ final class InternalGame {
 		this.numPlayers = numPlayers;
 	}
 	
-	void startGame() {
-		throw new UnsupportedOperationException();
-	}
-	
 	void addPlayer(int player, int faction) {
 		throw new UnsupportedOperationException();
 	}
 	
 	void removePlayer(int player) {
+		throw new UnsupportedOperationException();
+	}
+	
+	void startGame() {
 		throw new UnsupportedOperationException();
 	}
 	
