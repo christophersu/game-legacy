@@ -3,8 +3,28 @@ package com.boardgame.game;
 import java.util.Set;
 
 public final class Game {
+	//the minimum number of players for a game
+	public static final int MIN_PLAYERS = InternalGame.MIN_PLAYERS;
+	//the maximum number of players for a game
+	public static final int MAX_PLAYERS = InternalGame.MAX_PLAYERS;
+	
+	private InternalGame internalGame;
+	
+	/**
+	 * Creates a new game with the given number of players
+	 * @param numPlayers  the number of players in this game. between 
+	 * MIN_PLAYERS (inclusive) and MAX_PLAYERS (inclusive)
+	 * @throws IllegalArgumentException if numPlayers is less than MIN_PLAYERS
+	 * or greater than MAX_PLAYERS
+	 */
 	public Game(int numPlayers) {
-		throw new UnsupportedOperationException();
+		if (numPlayers < MIN_PLAYERS || numPlayers > MAX_PLAYERS) {
+			throw new IllegalArgumentException("Invalid number of players: " + 
+					numPlayers + " not in [" + MIN_PLAYERS + "," + MAX_PLAYERS +
+					"]");
+		}
+		
+		internalGame = new InternalGame(numPlayers);
 	}
 	
 	public void addPlayer(int player, int faction) {
@@ -85,6 +105,10 @@ public final class Game {
 	
 	public void setUserReady(int player, boolean isReady) {
 		throw new UnsupportedOperationException();
+	}
+	
+	public int getNumPlayers() {
+		return internalGame.getNumPlayers();
 	}
 	
 	public int getState() {
