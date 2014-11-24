@@ -4,6 +4,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Represents a player in the game.
+ *
+ */
 final class Player {
 	private final Faction faction;
 	private final Set<AbstractCombatCard> combatCardsInHand;
@@ -89,7 +93,7 @@ final class Player {
 	 * the specified maximum amount of cash is ignored
 	 * @param amount  the amount of cash to add
 	 */
-	public void addCash(int amount) {
+	void addCash(int amount) {
 		cash += amount;
 		
 		if (cash > maxCash) {
@@ -102,7 +106,7 @@ final class Player {
 	 * total does not go below 0
 	 * @param amount  the amount of cash to remove
 	 */
-	public void removeCash(int amount) {
+	void removeCash(int amount) {
 		cash -= amount;
 		
 		if (cash < 0) {
@@ -117,7 +121,7 @@ final class Player {
 	 * @throws IllegalArgumentException if card is null
 	 * @return whether or not the card was in the player's hand
 	 */
-	public boolean moveCombatCardToDiscard(AbstractCombatCard card) {
+	boolean moveCombatCardToDiscard(AbstractCombatCard card) {
 		if (card == null) {
 			throw new IllegalArgumentException("Card was null.");
 		}
@@ -135,7 +139,7 @@ final class Player {
 	/**
 	 * Moves the contents of the player's discard pile into his hand
 	 */
-	public void putDiscardPileIntoHand() {
+	void putDiscardPileIntoHand() {
 		combatCardsInHand.addAll(combatCardsDiscard);
 		combatCardsDiscard.clear();
 	}
@@ -147,7 +151,7 @@ final class Player {
 	 * @throws IllegalArgumentException if unit is null
 	 * @return whether or not the player had the given unit in his hand
 	 */
-	public boolean useUnit(AbstractUnit unit) {
+	boolean useUnit(AbstractUnit unit) {
 		if (unit == null) {
 			throw new IllegalArgumentException("Unit was null.");
 		}
@@ -160,7 +164,7 @@ final class Player {
 	 * @param unit  the unit to be added to the player's hand, not null
 	 * @throws IllegalArgumentException if unit is null
 	 */
-	public void addUnit(AbstractUnit unit) {
+	void addUnit(AbstractUnit unit) {
 		if (unit == null) {
 			throw new IllegalArgumentException("Unit was null.");
 		}
@@ -174,7 +178,7 @@ final class Player {
 	 * Returns this player's faction
 	 * @return this player's faction
 	 */
-	public Faction getFaction() {
+	Faction getFaction() {
 		return faction;
 	}
 	
@@ -182,7 +186,7 @@ final class Player {
 	 * Returns the combat cards in the player's hand
 	 * @return the combat cards in the player's hand
 	 */
-	public Set<AbstractCombatCard> getCombatCardsInHand() {
+	Set<AbstractCombatCard> getCombatCardsInHand() {
 		return combatCardsInHand;
 	}
 	
@@ -190,7 +194,7 @@ final class Player {
 	 * Returns the number of combat cards in the player's hand
 	 * @return the number of combat cards in the player's hand
 	 */
-	public int getNumCombatCardsInHand() {
+	int getNumCombatCardsInHand() {
 		return combatCardsInHand.size();
 	}
 	
@@ -198,7 +202,7 @@ final class Player {
 	 * Returns the combat cards in the player's discard
 	 * @return the combat cards in the player's discard
 	 */
-	public Set<AbstractCombatCard> getCombatCardsDiscard() {
+	Set<AbstractCombatCard> getCombatCardsDiscard() {
 		return combatCardsDiscard;
 	}
 	
@@ -206,7 +210,7 @@ final class Player {
 	 * Returns the units in the player's hand
 	 * @return the units in the player's hand
 	 */
-	public Collection<AbstractUnit> getUnitsInHand() {
+	Collection<AbstractUnit> getUnitsInHand() {
 		return unitsInHand;
 	}
 	
@@ -214,7 +218,7 @@ final class Player {
 	 * Returns the amount of cash this player has
 	 * @return the amount of cash this player has
 	 */
-	public int getCash() {
+	int getCash() {
 		return cash;
 	}
 	
@@ -222,7 +226,7 @@ final class Player {
 	 * Returns the maximum amount of cash this player may hold.
 	 * @return the maximum amount of cash this player may hold
 	 */
-	public int getMaxCash() {
+	int getMaxCash() {
 		return maxCash;
 	}
 }

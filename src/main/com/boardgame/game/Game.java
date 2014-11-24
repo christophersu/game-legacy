@@ -2,6 +2,11 @@ package com.boardgame.game;
 
 import java.util.Set;
 
+/**
+ * A game object that holds the state of the game and has methods that can 
+ * manipulate that state when used appropriately.
+ *
+ */
 public final class Game {
 	//the minimum number of players for a game
 	public static final int MIN_PLAYERS = InternalGame.MIN_PLAYERS;
@@ -27,6 +32,7 @@ public final class Game {
 		internalGame = new InternalGame(numPlayers);
 	}
 	
+	//TODO
 	public void addPlayer(int player, int faction) {
 		throw new UnsupportedOperationException();
 	}

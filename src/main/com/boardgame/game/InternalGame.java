@@ -10,6 +10,13 @@ final class InternalGame {
 	
 	private int numPlayers;
 	
+	/**
+	 * Creates a new internal game with the given number of players
+	 * @param numPlayers  the number of players in this game. between 
+	 * MIN_PLAYERS (inclusive) and MAX_PLAYERS (inclusive)
+	 * @throws IllegalArgumentException if numPlayers is less than MIN_PLAYERS
+	 * or greater than MAX_PLAYERS
+	 */
 	InternalGame(int numPlayers) {
 		if (numPlayers < MIN_PLAYERS || numPlayers > MAX_PLAYERS) {
 			throw new IllegalArgumentException("Invalid number of players: " + 
