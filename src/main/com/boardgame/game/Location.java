@@ -14,6 +14,10 @@ final class Location {
 	private final int supply;
 	private final int invest;
 	
+	//owner == null -> units.isEmpty()
+	//actionToken != null -> owner != null
+	//actionToken != null -> !units.isEmpty()
+	
 	private final Collection<AbstractUnit> units;
 	private Player owner;
 	private AbstractActionToken actionToken;
@@ -110,7 +114,7 @@ final class Location {
 	 * @throws IllegalStateException if there is no owner
 	 * @throws IllegalStateException if unit was not at this location beforehand
 	 */
-	void removeUnit(AbstractUnit unit) {
+	boolean removeUnit(AbstractUnit unit) {
 		if (unit == null) {
 			throw new IllegalArgumentException("Unit was null.");
 		}
@@ -121,14 +125,11 @@ final class Location {
 		
 		boolean result = units.remove(unit);
 		
-		if (!result) {
-			throw new IllegalStateException("Unit was not at location: " + 
-					unit);
-		}
-		
 		if (units.isEmpty()) {
 			owner = null;
 		}
+		
+		return result;
 	}
 	
 	/**

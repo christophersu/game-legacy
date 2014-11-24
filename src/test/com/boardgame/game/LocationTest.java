@@ -86,10 +86,10 @@ public class LocationTest {
 		location.changeOwner(null);
 	}
 	
-	@Test(expected=IllegalStateException.class)
-	public void testRemoveUnit() {
+	@Test
+	public void testRemoveNonExistentUnit() {
 		location.changeOwner(new Player());
-		location.removeUnit(new InfantryUnit());
+		assertFalse(location.removeUnit(new InfantryUnit()));
 	}
 	
 	@Test
@@ -97,7 +97,7 @@ public class LocationTest {
 		AbstractUnit unit = new InfantryUnit();
 		location.changeOwner(new Player());
 		location.addUnit(unit);
-		location.removeUnit(unit);
+		assertTrue(location.removeUnit(unit));
 		assertFalse(location.hasUnits());
 		assertNull(location.getOwner());
 	}
