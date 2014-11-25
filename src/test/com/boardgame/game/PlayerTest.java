@@ -49,13 +49,15 @@ public class PlayerTest {
 	@Test
 	public void testCashDoesNotExceedMax() {
 		player.putCashInHand(21);
-		assertEquals(player.getCash(), 20);
+		assertEquals(player.getCashInHand(), 20);
+		assertEquals(player.getCashPool(), 0);
 	}
 	
 	@Test
 	public void testCashDoesNotGoNegative() {
 		player.removeCashFromHand(1);
-		assertTrue(player.getCash() >= 0);
+		assertTrue(player.getCashInHand() >= 0);
+		assertEquals(player.getCashPool(), 20);
 	}
 	
 	@Test

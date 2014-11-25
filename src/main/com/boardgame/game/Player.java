@@ -206,7 +206,7 @@ final class Player {
 	 * @return the amount of cash in the player's hand, nonnegative, not greater than
 	 * max cash
 	 */
-	int getCash() {
+	int getCashInHand() {
 		return cashInHand;
 	}
 	

@@ -37,11 +37,11 @@ public final class Game {
 	}
 	
 	//TODO
-	public void addPlayer(int player) {
+	public void addPlayer(int playerId, Faction faction) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void removePlayer(int player) {
+	public void removePlayer(int playerId) {
 		throw new UnsupportedOperationException();
 	}
 	
