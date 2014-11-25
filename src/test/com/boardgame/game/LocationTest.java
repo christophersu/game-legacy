@@ -13,7 +13,6 @@ import org.junit.Test;
 
 import com.boardgame.game.Location.BaseStrength;
 import com.boardgame.game.Location.Terrain;
-import com.boardgame.game.Player.Faction;
 
 public class LocationTest {
 	private Player player;
@@ -21,8 +20,7 @@ public class LocationTest {
 	
 	@BeforeClass
 	public void initialize() {
-		player = new Player(Faction.RED, new HashSet<>(), new HashSet<>(), 0, 
-					20);
+		player = new Player(new HashSet<>(), new HashSet<>(), 0, 20);
 	}
 	
 	@Before

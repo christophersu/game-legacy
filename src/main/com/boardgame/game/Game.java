@@ -1,6 +1,9 @@
 package com.boardgame.game;
 
+import java.io.IOException;
 import java.util.Set;
+
+import org.json.simple.parser.ParseException;
 
 /**
  * A game object that holds the state of the game and has methods that can 
@@ -8,32 +11,33 @@ import java.util.Set;
  *
  */
 public final class Game {
-	//the minimum number of players for a game
-	public static final int MIN_PLAYERS = InternalGame.MIN_PLAYERS;
-	//the maximum number of players for a game
-	public static final int MAX_PLAYERS = InternalGame.MAX_PLAYERS;
-	
-	private InternalGame internalGame;
+	private Configuration configuration;
 	
 	/**
-	 * Creates a new game with the given number of players
-	 * @param numPlayers  the number of players in this game. between 
-	 * MIN_PLAYERS (inclusive) and MAX_PLAYERS (inclusive)
-	 * @throws IllegalArgumentException if numPlayers is less than MIN_PLAYERS
-	 * or greater than MAX_PLAYERS
+	 * Creates a new game with the given configuration and the given number of
+	 * players.
+	 * @param configuration  the configuration for this game, not null
+	 * @param numPlayers  the number of players that will play, valid numbers
+	 * depend on the given configuration
+	 * @throws IllegalArgumentException if configuration is null
+	 * @throws IllegalArgumentException if numPlayers is inappropriate for the 
+	 * given configuration
 	 */
-	public Game(int numPlayers) {
-		if (numPlayers < MIN_PLAYERS || numPlayers > MAX_PLAYERS) {
-			throw new IllegalArgumentException("Invalid number of players: " + 
-					numPlayers + " not in [" + MIN_PLAYERS + "," + MAX_PLAYERS +
-					"]");
+	public Game(Configuration configuration, int numPlayers) 
+			throws IOException, ParseException {
+		if (configuration == null) {
+			throw new IllegalArgumentException("Configuration was null.");
 		}
 		
-		internalGame = new InternalGame(numPlayers);
+		if (!configuration.isValidNumPlayers(numPlayers)) {
+			throw new IllegalArgumentException("Num players was invalid.");
+		}
+		
+		this.configuration = configuration;
 	}
 	
 	//TODO
-	public void addPlayer(int player, int faction) {
+	public void addPlayer(int player) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -45,51 +49,56 @@ public final class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void placeToken(int player, int token, int location) {
+	public void placeToken(Player player, AbstractActionToken token, 
+			Location location) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void removeToken(int player, int location) {
+	public void removeToken(Player player, Location location) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void switchToken(int player, int location, int nextToken) {
+	public void switchToken(Player player, Location location, 
+			AbstractActionToken nextToken) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public int getCurrentPlayer() {
+	public Player getCurrentPlayer() {
 		throw new UnsupportedOperationException();
 	}
 	
-	public Set<Integer> getTokenChoices(int player) {
+	public Set<AbstractActionToken> getTokenChoices(Player player) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public Set<Integer> getValidLocationTargets(int user, int token) {
+	public Set<Location> getValidLocationTargets(Player player, 
+			AbstractActionToken token) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void chooseUnitforAction(int unit) {
+	public void chooseUnitforAction(AbstractUnit unit) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void useToken(int player, int token, int tokenLocation, int target) {
+	public void useToken(Player player, AbstractActionToken token, 
+			Location tokenLocation, Location target) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void resetToken(int player, int token) {
+	public void resetToken(Player player, AbstractActionToken token) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void support(int supportingPlayer, int supportingLocation, int supportedPlayer) {
+	public void support(Player supportingPlayer, Location supportingLocation, 
+			Player supportedPlayer) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void useCombatCard(int player, int combatCard) {
+	public void useCombatCard(Player player, AbstractCombatCard combatCard) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void useCombatBonus(int player) {
+	public void useCombatBonus(Player player) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -97,31 +106,31 @@ public final class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void spawnUnit(int player, int location, int unit) {
+	public void spawnUnit(Player player, Location location, AbstractUnit unit) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void bid(int player, int bid) {
+	public void bid(Player player, int bid) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void breakTie(int player, int winner) {
+	public void breakTie(Player loser, Player winner) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void setUserReady(int player, boolean isReady) {
+	public void setUserReady(Player player, boolean isReady) {
 		throw new UnsupportedOperationException();
 	}
 	
 	public int getNumPlayers() {
-		return internalGame.getNumPlayers();
+		throw new UnsupportedOperationException();
 	}
 	
 	public int getState() {
 		throw new UnsupportedOperationException();
 	}
 
-	public String getSnapshotForUser(int player) {
+	public String getSnapshotForPlayer(Player player) {
 		throw new UnsupportedOperationException();
 	}
 }

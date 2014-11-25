@@ -9,60 +9,52 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.boardgame.game.Player.Faction;
-
 public class PlayerTest {
 	private Player player;
 	
 	@Before
 	public void initializeTest() {
-		player = new Player(Faction.RED, new HashSet<>(), new HashSet<>(), 0, 
-					20);
-	}
-	
-	@Test(expected=IllegalArgumentException.class)
-	public void testNullFaction() {
-		new Player(null, new HashSet<>(), new HashSet<>(), 0, 20);
+		player = new Player(new HashSet<>(), new HashSet<>(), 0, 20);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testNullCards() {
-		new Player(Faction.RED, null, new HashSet<>(), 0, 20);
+		new Player(null, new HashSet<>(), 0, 20);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testNullUnits() {
-		new Player(Faction.RED, new HashSet<>(), null, 0, 20);
+		new Player(new HashSet<>(), null, 0, 20);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testNegativeCash() {
-		new Player(Faction.RED, new HashSet<>(), new HashSet<>(), -1, 20);
+		new Player(new HashSet<>(), new HashSet<>(), -1, 20);
 	}
 	
 	@Test
 	public void testNullCombatCardElement() {
 		Set<AbstractCombatCard> cards = new HashSet<>();
 		cards.add(null);
-		new Player(Faction.RED, cards, new HashSet<>(), 0, 20);
+		new Player(cards, new HashSet<>(), 0, 20);
 	}
 	
 	@Test
 	public void testNullUnitElement() {
 		Set<AbstractUnit> cards = new HashSet<>();
 		cards.add(null);
-		new Player(Faction.RED, new HashSet<>(), cards, 0, 20);
+		new Player(new HashSet<>(), cards, 0, 20);
 	}
 	
 	@Test
 	public void testCashDoesNotExceedMax() {
-		player.addCash(21);
+		player.putCashInHand(21);
 		assertEquals(player.getCash(), 20);
 	}
 	
 	@Test
 	public void testCashDoesNotGoNegative() {
-		player.removeCash(1);
+		player.removeCashFromHand(1);
 		assertTrue(player.getCash() >= 0);
 	}
 	

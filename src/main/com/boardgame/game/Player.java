@@ -9,45 +9,28 @@ import java.util.Set;
  *
  */
 final class Player {
-	private final Faction faction;
 	private final Set<AbstractCombatCard> combatCardsInHand;
 	private final Set<AbstractCombatCard> combatCardsDiscard;
 	private final Collection<AbstractUnit> unitsInHand;
-	private final int maxCash;
 	
-	private int cash;
-	
-	enum Faction {
-		RED,
-		ORANGE,
-		YELLOW,
-		GREEN,
-		WHITE,
-		BLACK
-	}
+	private int cashInHand;
+	private int cashPool;
 	
 	/**
 	 * Creates a new player who will control the given faction
-	 * @param faction  the faction the player will control, not null
 	 * @param combatcards  the combat cards the player starts with, not null, no
 	 * null elements
 	 * @param units  the units the player starts with, not null, no null 
 	 * elements
-	 * @param maxCash  the maximum amount of cash a player may have
-	 * @param cash  starting cash for the player, nonnegative
-	 * @throws IllegalArgumentException if faction is null
+	 * @param cashInHand  the amount of cash in the player's hand, nonnegative
+	 * @param cashPool  the amount of cash not in the player's hand, nonnegative
 	 * @throws IllegalArgumentException if combatCards is null
 	 * @throws IllegalArgumentException if units is null
-	 * @throws IllegalArgumentException if maxCash is negative
-	 * @throws IllegalArgumentException if cash is negative
-	 * @throws IllegalArgumentException if cash > maxCash
+	 * @throws IllegalArgumentException if cashInHand < 0
+	 * @throws IllegalArgumentException if cashPool < 0
 	 */
-	Player(Faction faction, Set<AbstractCombatCard> combatCards, 
-			Collection<AbstractUnit> units, int cash, int maxCash) {
-		if (faction == null) {
-			throw new IllegalArgumentException("Faction was null.");
-		}
-		
+	Player(Set<AbstractCombatCard> combatCards, Collection<AbstractUnit> units, 
+			int cashPool, int cashInHand) {
 		if (combatCards == null) {
 			throw new IllegalArgumentException("Combat cards was null.");
 		}
@@ -56,16 +39,12 @@ final class Player {
 			throw new IllegalArgumentException("Units was null.");
 		}
 		
-		if (maxCash < 0) {
-			throw new IllegalArgumentException("Max cash was negative.");
+		if (cashInHand < 0) {
+			throw new IllegalArgumentException("Cash in hand was negative.");
 		}
 		
-		if (cash < 0) {
-			throw new IllegalArgumentException("Cash was negative.");
-		}
-		
-		if (cash > maxCash) {
-			throw new IllegalArgumentException("Cash > maxCash");
+		if (cashPool < 0) {
+			throw new IllegalArgumentException("Cash pool was negative.");
 		}
 		
 		for (AbstractCombatCard card : combatCards) {
@@ -80,37 +59,52 @@ final class Player {
 			}
 		}
 				
-		this.faction = faction;
 		this.combatCardsInHand = combatCards;
 		this.combatCardsDiscard = new HashSet<AbstractCombatCard>();
 		this.unitsInHand = units;
-		this.maxCash = maxCash;
-		this.cash = cash;
+		this.cashInHand = cashInHand;
+		this.cashPool = cashPool;
 	}
 	
 	/**
-	 * Adds the given amount of cash to this player's total, where cash over
-	 * the specified maximum amount of cash is ignored
-	 * @param amount  the amount of cash to add
+	 * Puts the given amount of cash in the player's hand, limited by the amount
+	 * in his cash pool.
+	 * @param amount  the amount to be transferred, nonnegative
+	 * @throws IllegalArgumentException if amount is negative
 	 */
-	void addCash(int amount) {
-		cash += amount;
+	void putCashInHand(int amount) {
+		if (amount < 0) {
+			throw new IllegalArgumentException("Amount is negative.");
+		}
 		
-		if (cash > maxCash) {
-			cash = maxCash;
+		if (cashPool >= amount) {
+			cashInHand += amount;
+			cashPool -= amount;
+		}
+		else {
+			cashInHand -= cashPool;
+			cashPool = 0;
 		}
 	}
 	
 	/**
-	 * Removes the given amount of cash from this player's total such that the
-	 * total does not go below 0
-	 * @param amount  the amount of cash to remove
+	 * Removes the given amount of cash from the player's hand, such that the 
+	 * amount of cash in the player's hand isn't negative
+	 * @param amount  the amount to be transferred, nonnegative
+	 * @throws IllegalArgumentException if amount is negative
 	 */
-	void removeCash(int amount) {
-		cash -= amount;
+	void removeCashFromHand(int amount) {
+		if (amount < 0) {
+			throw new IllegalArgumentException("Amount is negative.");
+		}
 		
-		if (cash < 0) {
-			cash = 0;
+		if (cashInHand >= amount) {
+			cashInHand -= amount;
+			cashPool += amount;
+		}
+		else {
+			cashPool += cashInHand;
+			cashInHand = 0;
 		}
 	}
 	
@@ -175,14 +169,6 @@ final class Player {
 	}
 	
 	/**
-	 * Returns this player's faction
-	 * @return this player's faction, not null
-	 */
-	Faction getFaction() {
-		return faction;
-	}
-	
-	/**
 	 * Returns the combat cards in the player's hand
 	 * @return the combat cards in the player's hand, not null, no null elements
 	 */
@@ -216,19 +202,19 @@ final class Player {
 	}
 	
 	/**
-	 * Returns the amount of cash this player has
-	 * @return the amount of cash this player has, nonnegative, not greater than
+	 * Returns the amount of cash in the player's hand
+	 * @return the amount of cash in the player's hand, nonnegative, not greater than
 	 * max cash
 	 */
 	int getCash() {
-		return cash;
+		return cashInHand;
 	}
 	
 	/**
-	 * Returns the maximum amount of cash this player may hold.
-	 * @return the maximum amount of cash this player may hold, nonnegative
+	 * Returns the amount of cash in the player's cash pool
+	 * @return the amount of cash in the player's cash pool, nonnegative
 	 */
-	int getMaxCash() {
-		return maxCash;
+	int getCashPool() {
+		return cashPool;
 	}
 }
