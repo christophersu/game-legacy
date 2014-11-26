@@ -1,0 +1,167 @@
+{
+	"validNumPlayers" : [
+		6
+	],
+	"factionsToPlayers" : {
+		"RED" : {
+			"combatCardsInHand" : [
+				
+			],
+			"combatCardsDiscard" : [
+			
+			],
+			"units" : [
+				
+			],
+			"cashInHand" : 5,
+			"cashPool" : 15
+		},
+		"ORANGE" : {
+			"combatCardsInHand" : [
+				
+			],
+			"combatCardsDiscard" : [
+			
+			],
+			"units" : [
+				
+			],
+			"cashInHand" : 5,
+			"cashPool" : 15
+		},
+		"YELLOW" : {
+			"combatCardsInHand" : [
+				
+			],
+			"combatCardsDiscard" : [
+			
+			],
+			"units" : [
+				
+			],
+			"cashInHand" : 5,
+			"cashPool" : 15
+		},
+		"GREEN" : {
+			"combatCardsInHand" : [
+				
+			],
+			"combatCardsDiscard" : [
+			
+			],
+			"units" : [
+				
+			],
+			"cashInHand" : 5,
+			"cashPool" : 15
+		},
+		"WHITE" : {
+			"combatCardsInHand" : [
+				
+			],
+			"combatCardsDiscard" : [
+			
+			],
+			"units" : [
+				
+			],
+			"cashInHand" : 5,
+			"cashPool" : 15
+		},
+		"BLACK" : {
+			"combatCardsInHand" : [
+				
+			],
+			"combatCardsDiscard" : [
+			
+			],
+			"units" : [
+				
+			],
+			"cashInHand" : 5,
+			"cashPool" : 15
+		}
+	},
+	"turnOrder" : [
+		"RED",
+		"YELLOW",
+		"GREEN",
+		"WHITE",
+		"BLACK",
+		"ORANGE"
+	],
+	"tieBreakingOrder" : [
+		"RED",
+		"YELLOW",
+		"GREEN",
+		"WHITE",
+		"BLACK",
+		"ORANGE"
+	],
+	"specialTokenOrder" : [
+		"RED",
+		"YELLOW",
+		"GREEN",
+		"WHITE",
+		"BLACK",
+		"ORANGE"
+	],
+	"factionsToSupplies" : {
+		"RED" : 1,
+		"YELLOW" : 1,
+		"GREEN" : 1,
+		"WHITE" : 1,
+		"BLACK" : 1,
+		"ORANGE" : 1
+	},
+	"factionsToNumBases" : {
+		"RED" : 1,
+		"YELLOW" : 1,
+		"GREEN" : 1,
+		"WHITE" : 1,
+		"BLACK" : 1,
+		"ORANGE" : 1
+	},
+	"threatLevel" : 0,
+	"round" : 1,
+	"locations" : [
+		0 : {
+			"name" : "Location 0",
+			"terrain" : "LAND",
+			"baseStrength" : "NONE",
+			"supply" : 0,
+			"invest" : 0,
+			"owner" : null,
+			"units" : [],
+			"actionToken" : null
+		}
+	],
+	"adjacencies" : {
+		0 : [1, 2, 3],
+		1 : [2, 3, 4]
+	},
+	"eventCards1Stack" : {
+		
+	},
+	"eventCards1Discard" : {
+		
+	},
+	"eventCards2Stack" : {
+		
+	},
+	"eventCards2Discard" : {
+		
+	},
+	"eventCards3Stack" : {
+		
+	},
+	"eventCards3Discard" : {
+		
+	},
+	"threadCardsStack" : {
+	
+	},
+	"threatCardsDiscard" : {
+		
+	}
+}
