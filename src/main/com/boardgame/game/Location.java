@@ -10,13 +10,14 @@ import java.util.Collection;
 final class Location {
 	private final String name;
 	private final Terrain terrain;
-	private final BaseStrength baseStrength;
+	private final Base base;
 	private final int supply;
 	private final int invest;
 	
 	//owner == null -> units.isEmpty()
 	//actionToken != null -> owner != null
 	//actionToken != null -> !units.isEmpty()
+	//base != null -> terrain = LAND
 	
 	private final Collection<AbstractUnit> units;
 	private Player owner;
@@ -28,30 +29,25 @@ final class Location {
 		PORT
 	}
 	
-	enum BaseStrength {
-		NONE,
-		NORMAL,
-		STRONG
-	}
-	
 	/**
 	 * Creates a new location with the given name, given supply, and given 
 	 * invest potential.
 	 * @param name  the name of this location, not null
 	 * @param terrain  the terrain of this location, not null
-	 * @param baseStrength  the strength of a base at this location, not null
+	 * @param base  the base at this location, null means no base, can only be 
+	 * on LAND
 	 * @param supply  the amount this location contributes to the owner's 
 	 * supply, nonnegative
 	 * @param invest  the amount of investment potential for the owner, 
 	 * nonnegative
 	 * @throws IllegalArgumentException  if name is null
 	 * @throws IllegalArgumentException  if terrain is null
-	 * @throws IllegalArgumentException  if baseStrength is null
+	 * @throws IllegalArgumentException  if base is not null and terrain is not 
+	 * land
 	 * @throws IllegalArgumentException  if supply is negative
 	 * @throws IllegalArgumentException  if invest is negative
 	 */
-	Location(String name, Terrain terrain, BaseStrength baseStrength, 
-			int supply, int invest) {
+	Location(String name, Terrain terrain, Base base, int supply, int invest) {
 		if (name == null) {
 			throw new IllegalArgumentException("Name was null.");
 		}
@@ -60,8 +56,8 @@ final class Location {
 			throw new IllegalArgumentException("Terrain was null.");
 		}
 		
-		if (baseStrength == null) {
-			throw new IllegalArgumentException("Base strength was null.");
+		if (base != null && terrain != Terrain.LAND) {
+			throw new IllegalArgumentException("Base on non-land.");
 		}
 		
 		if (supply < 0) {
@@ -76,7 +72,7 @@ final class Location {
 		
 		this.name = name;
 		this.terrain = terrain;
-		this.baseStrength = baseStrength;
+		this.base = base;
 		this.supply = supply;
 		this.invest = invest;
 		
@@ -218,11 +214,11 @@ final class Location {
 	}
 	
 	/**
-	 * Returns the strength of the base at this location, not null
-	 * @return the strength of the base at this location, not null
+	 * Returns the base at this location, null means no base
+	 * @return the base at this location, null means no base
 	 */
-	BaseStrength getBaseStrength() {
-		return baseStrength;
+	Base getBaseStrength() {
+		return base;
 	}
 	
 	/**

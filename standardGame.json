@@ -128,10 +128,20 @@
 		0 : {
 			"name" : "Location 0",
 			"terrain" : "LAND",
-			"baseStrength" : "NONE",
+			"base" : {"size" : 2},
 			"supply" : 0,
 			"invest" : 0,
 			"owner" : null,
+			"units" : [],
+			"actionToken" : null
+		}
+		1 : {
+			"name" : "Location 1",
+			"terrain" : "LAND",
+			"base" : {"size" : 2, "defense" : 4},
+			"supply" : 1,
+			"invest" : 2,
+			"owner" : "RED",
 			"units" : [],
 			"actionToken" : null
 		}

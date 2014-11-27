@@ -11,57 +11,55 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.boardgame.game.Location.BaseStrength;
 import com.boardgame.game.Location.Terrain;
 
 public class LocationTest {
-	private Player player;
+	private static Player player;
 	private Location location;
 	
 	@BeforeClass
-	public void initialize() {
+	public static void initialize() {
 		player = new Player(new HashSet<>(), new HashSet<>(), 0, 20);
 	}
 	
 	@Before
 	public void initializeTest() {
-		location = new Location("location name", Terrain.LAND, 
-				BaseStrength.NORMAL, 1, 2);
+		location = new Location("location name", Terrain.LAND, null, 1, 2);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testNullName() {
-		new Location(null, Terrain.LAND, BaseStrength.NORMAL, 1, 2);
+		new Location(null, Terrain.LAND, null, 1, 2);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testNullTerrain() {
-		new Location("location name", null, BaseStrength.NORMAL, 1, 2);
-	}
-	
-	@Test(expected=IllegalArgumentException.class)
-	public void testNullBaseStrength() {
-		new Location("location name", Terrain.LAND, null, 1, 2);
+		new Location("location name", null, null, 1, 2);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testNegativeSupply() {
-		new Location("location name", Terrain.LAND, BaseStrength.NORMAL, -1, 2);
+		new Location("location name", Terrain.LAND, null, -1, 2);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
-	public void testNegativeInvest() {
-		new Location("location name", Terrain.LAND, BaseStrength.NORMAL, 1, -2);
-	}
+	public void testNegativeInvest() {             
+		new Location("location name", Terrain.LAND, null, 1, -2);
+	}                                           
 	
-	@Test
-	public void testZeroSupply() {
-		new Location("location name", Terrain.LAND, BaseStrength.NORMAL, 0, 2);
+	@Test(expected=IllegalArgumentException.class)
+	public void testBaseOnNonLand() {
+		new Location("location name", Terrain.SEA, new Base(1, 2), 1, 2);
 	}
-	
-	@Test
-	public void testZeroInvest() {
-		new Location("location name", Terrain.LAND, BaseStrength.NORMAL, 1, 0);
+	                                               
+	@Test                                          
+	public void testZeroSupply() {                 
+		new Location("location name", Terrain.LAND, null, 0, 2);
+	}                                              
+	                                               
+	@Test                                          
+	public void testZeroInvest() {                 
+		new Location("location name", Terrain.LAND, null, 1, 0);
 	}
 	
 	@Test
