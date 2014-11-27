@@ -125,7 +125,7 @@
 	"threatLevel" : 0,
 	"round" : 1,
 	"locations" : [
-		0 : {
+		{
 			"name" : "Location 0",
 			"terrain" : "LAND",
 			"base" : {"size" : 2},
@@ -134,8 +134,8 @@
 			"owner" : null,
 			"units" : [],
 			"actionToken" : null
-		}
-		1 : {
+		},
+		{
 			"name" : "Location 1",
 			"terrain" : "LAND",
 			"base" : {"size" : 2, "defense" : 4},
@@ -146,10 +146,10 @@
 			"actionToken" : null
 		}
 	],
-	"adjacencies" : {
-		0 : [1, 2, 3],
-		1 : [2, 3, 4]
-	},
+	"adjacencies" : [
+		[1, 2, 3],
+		[2, 3, 4]
+	],
 	"eventCards1Stack" : {
 		
 	},
