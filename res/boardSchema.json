@@ -1,0 +1,66 @@
+{
+	"type" : "object",
+	"properties" : {
+		"locations" : {
+			"type" : "array",
+			"items" : {				
+				"type" : "object",
+				"properties" : {
+					"name" : {
+						"type" : "string",
+						"minLength" : 1
+					},
+					"terrain" : {
+						"enum" : [
+							"LAND",
+							"SEA",
+							"PORT"
+						]
+					},
+					"base" : {
+						"type" : "object",
+						"properties" : {
+							"size" : {
+								"type" : "integer",
+								"minimum" : 1
+							}
+						},
+						"additionalProperties" : false,
+						"required" : ["size"]
+					},
+					"supply" : {
+						"type" : "integer",
+						"minimum" : 0
+					},
+					"invest" : {
+						"type" : "integer",
+						"minimum" : 0
+					}
+				},
+				"additionalProperties" : false,
+				"required" : ["name", "terrain"]
+			},
+			"minItems" : 1,
+			"additionalItems" : false,
+			"uniqueItems" : true
+		},
+		"adjacencies" : {
+			"type" : "array",
+			"items" : {
+				"type" : "array",
+				"items" : {
+					"type" : "integer",
+					"minimum" : 0
+				},
+				"minItems" : 2,
+				"maxItems" : 2,
+				"uniqueItems" : true,
+				"additionalItems" : false
+			},
+			"uniqueItems" : true,
+			"additionalItems" : false
+		}
+	},
+	"additionalProperties" : false,
+	"required" : ["locations", "adjacencies"]
+}

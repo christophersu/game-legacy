@@ -1,15 +1,10 @@
 {
-	"validNumPlayers" : [
-		6
-	],
 	"factionsToPlayers" : {
 		"RED" : {
 			"combatCardsInHand" : [
 				
 			],
-			"combatCardsDiscard" : [
-			
-			],
+			"combatCardsDiscard" : [],
 			"units" : [
 				
 			],
@@ -20,9 +15,7 @@
 			"combatCardsInHand" : [
 				
 			],
-			"combatCardsDiscard" : [
-			
-			],
+			"combatCardsDiscard" : [],
 			"units" : [
 				
 			],
@@ -33,9 +26,7 @@
 			"combatCardsInHand" : [
 				
 			],
-			"combatCardsDiscard" : [
-			
-			],
+			"combatCardsDiscard" : [],
 			"units" : [
 				
 			],
@@ -46,9 +37,7 @@
 			"combatCardsInHand" : [
 				
 			],
-			"combatCardsDiscard" : [
-			
-			],
+			"combatCardsDiscard" : [],
 			"units" : [
 				
 			],
@@ -59,9 +48,7 @@
 			"combatCardsInHand" : [
 				
 			],
-			"combatCardsDiscard" : [
-			
-			],
+			"combatCardsDiscard" : [],
 			"units" : [
 				
 			],
@@ -72,9 +59,7 @@
 			"combatCardsInHand" : [
 				
 			],
-			"combatCardsDiscard" : [
-			
-			],
+			"combatCardsDiscard" : [],
 			"units" : [
 				
 			],
@@ -106,6 +91,14 @@
 		"BLACK",
 		"ORANGE"
 	],
+	"specialTokensPerPosition" : [
+		3,
+		3,
+		2,
+		1,
+		0,
+		0
+	],
 	"factionsToSupplies" : {
 		"RED" : 1,
 		"YELLOW" : 1,
@@ -124,54 +117,41 @@
 	},
 	"threatLevel" : 0,
 	"round" : 1,
-	"locations" : [
+	"locationAdditions" : [
 		{
-			"name" : "Location 0",
-			"terrain" : "LAND",
-			"base" : {"size" : 2},
-			"supply" : 0,
-			"invest" : 0,
-			"owner" : null,
-			"units" : [],
-			"actionToken" : null
+			"owner" : "ORANGE",
+			"targetLocation" : 0
 		},
 		{
-			"name" : "Location 1",
-			"terrain" : "LAND",
-			"base" : {"size" : 2, "defense" : 4},
-			"supply" : 1,
-			"invest" : 2,
+			"base" : {"defense" : 4},
 			"owner" : "RED",
-			"units" : [],
-			"actionToken" : null
+			"targetLocation" : 1
 		}
 	],
-	"adjacencies" : [
-		[1, 2, 3],
-		[2, 3, 4]
+	"eventCards1Stack" : [
+		
 	],
-	"eventCards1Stack" : {
+	"eventCards1Discard" : [
 		
-	},
-	"eventCards1Discard" : {
+	],
+	"eventCards2Stack" : [
 		
-	},
-	"eventCards2Stack" : {
+	],
+	"eventCards2Discard" : [
 		
-	},
-	"eventCards2Discard" : {
+	],
+	"eventCards3Stack" : [
 		
-	},
-	"eventCards3Stack" : {
+	],
+	"eventCards3Discard" : [
 		
-	},
-	"eventCards3Discard" : {
-		
-	},
-	"threadCardsStack" : {
+	],
+	"threatCardsStack" : [
 	
-	},
-	"threatCardsDiscard" : {
+	],
+	"threatCardsDiscard" : [
 		
-	}
+	],
+	"hasCombatBonusBeenUsed" : false,
+	"hasSightPowerBeenUsed" : false
 }

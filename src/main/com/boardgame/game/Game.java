@@ -14,23 +14,14 @@ public final class Game {
 	private Configuration configuration;
 	
 	/**
-	 * Creates a new game with the given configuration and the given number of
-	 * players.
+	 * Creates a new game with the given configuration.
 	 * @param configuration  the configuration for this game, not null
-	 * @param numPlayers  the number of players that will play, valid numbers
-	 * depend on the given configuration
 	 * @throws IllegalArgumentException if configuration is null
-	 * @throws IllegalArgumentException if numPlayers is inappropriate for the 
-	 * given configuration
 	 */
-	public Game(Configuration configuration, int numPlayers) 
+	public Game(Configuration configuration) 
 			throws IOException, ParseException {
 		if (configuration == null) {
 			throw new IllegalArgumentException("Configuration was null.");
-		}
-		
-		if (!configuration.isValidNumPlayers(numPlayers)) {
-			throw new IllegalArgumentException("Num players was invalid.");
 		}
 		
 		this.configuration = configuration;

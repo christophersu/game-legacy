@@ -1,0 +1,22 @@
+{
+	"locations" : [
+		{
+			"name" : "Location 0",
+			"terrain" : "LAND",
+			"base" : {"size" : 2},
+			"supply" : 0,
+			"invest" : 0
+		},
+		{
+			"name" : "Location 1",
+			"terrain" : "LAND",
+			"base" : {"size" : 2},
+			"supply" : 1,
+			"invest" : 2
+		}
+	],
+	"adjacencies" : [
+		[1, 2],
+		[2, 0]
+	]
+}

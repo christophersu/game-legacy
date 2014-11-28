@@ -1,0 +1,182 @@
+{
+	"type" : "object",
+	"properties" : {
+		"factionsToPlayers" : {
+			"type" : "object",
+			"patternProperties" : {
+				"^(RED|ORANGE|YELLOW|GREEN|WHITE|BLACK)$" : {
+					"type" : "object",
+					"properties" : {
+						"combatCardsInHand" : {
+							"type" : "array",
+							"items" : {
+								"type" : "string",
+								"minLength" : 1
+							}
+						},
+						"combatCardsDiscard" : {
+							"type" : "array",
+							"items" : {
+								"type" : "string",
+								"minLength" : 1
+							},
+							"additionalItems" : false
+						},
+						"units" : {
+							"type" : "array",
+							"items" : {
+								"type" : "string",
+								"minLength" : 1
+							},
+							"additionalItems" : false
+						},
+						"cashInHand" : {
+							"type" : "integer",
+							"minimum" : 0
+						},
+						"cashPool" : {
+							"type" : "integer",
+							"minimum" : 0
+						}
+					},
+					"additionalProperties" : false,
+					"required" : ["combatCardsInHand", "units", "cashInHand", "cashPool"]
+				}
+			},
+			"additionalProperties" : false,
+			"required" : ["RED", "ORANGE", "YELLOW", "GREEN", "WHITE", "BLACK"]
+		},
+		"turnOrder" : {
+			"type" : "array",
+			"items" : {
+				"enum" : ["RED", "ORANGE", "YELLOW", "GREEN", "WHITE", "BLACK"]
+			},
+			"additionalItems" : false,
+			"minItems" : 6,
+			"maxItems" : 6,
+			"uniqueItems" : true
+		},
+		"tieBreakingOrder" : {
+			"$ref" : "#/properties/turnOrder"
+		},
+		"specialTokenOrder" : {
+			"$ref" : "#/properties/turnOrder"
+		},
+		"specialTokensPerPosition" : {
+			"type" : "array",
+			"items" : {
+				"type" : "integer",
+				"minimum" : 0
+			},
+			"additionalItems" : false,
+			"minItems" : 6,
+			"maxItems" : 6
+		},
+		"factionsToSupplies" : {
+			"type" : "object",
+			"patternProperties" : {
+				"^(RED|ORANGE|YELLOW|GREEN|WHITE|BLACK)$" : {
+					"type" : "integer",
+					"minimum" : 1
+				}
+			},
+			"additionalProperties" : false,
+			"required" : ["RED", "ORANGE", "YELLOW", "GREEN", "WHITE", "BLACK"]
+		},
+		"factionsToNumBases" : {
+			"$ref" : "#/properties/factionsToSupplies"
+		},
+		"threatLevel" : {
+			"type" : "integer",
+			"minimum" : 0,
+			"multipleOf" : 2
+		},
+		"round" : {
+			"type" : "integer",
+			"minimum" : 1,
+			"maximum" : 10
+		},			
+		"eventCards1Stack" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string",
+				"minLength" : 1
+			},
+			"additionalItems" : false,
+			"uniqueItems" : true
+		},
+		"eventCards1Discard" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"eventCards2Stack" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"eventCards2Discard" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"eventCards3Stack" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"eventCards3Discard" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"threatCardsStack" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"threatCardsDiscard" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"locationAdditions" : {
+			"type" : "array",
+			"items" : {
+				"type" : "object",
+				"properties" : {
+					"base" : {
+						"properties" : {
+							"defense" : {
+								"type" : "integer",
+								"minimum" : 1
+							}
+						},
+						"additionalProperties" : false,
+						"required" : ["defense"]
+					},
+					"owner" : {
+						"enum" : ["RED", "ORANGE", "YELLOW", "GREEN", "WHITE", "BLACK"]
+					},
+					"units" : {
+						"type" : "array",
+						"items" : {
+							"type" : "string",
+							"minLength" : 1
+						},
+						"additionalItems" : false
+					},
+					"actionToken" : {
+						"type" : "string",
+						"minLength" : 1
+					},
+					"targetLocation" : {
+						"type" : "integer",
+						"minimum" : 0
+					}
+				},
+				"additionalProperties" : false,
+				"required" : ["targetLocation"]
+			},
+			"additionalItems" : false
+		},
+		"hasCombatBonusBeenUsed" : {
+			"type" : "boolean"
+		},
+		"hasSightPowerBeenUsed" : {
+			"type" : "boolean"
+		}
+	},
+	"additionalProperties" : false,
+	"required" : ["factionsToPlayers", "turnOrder", "tieBreakingOrder", "specialTokenOrder", 
+					"specialTokensPerPosition", "factionsToSupplies", "factionsToNumBases", 
+					"threatLevel", "round", "eventCards1Stack", "eventCards2Stack",
+					"eventCards3Stack", "threatCardsStack", "hasCombatBonusBeenUsed", 
+					"hasSightPowerBeenUsed"]
+}
