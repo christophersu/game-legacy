@@ -2,6 +2,8 @@ package com.boardgame.game;
 
 import java.io.IOException;
 
+import org.json.simple.parser.ParseException;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -12,8 +14,9 @@ import com.github.fge.jsonschema.main.JsonSchemaFactory;
 
 public class ValidateJsonFiles {
 	public static void main(String[] args) 
-			throws IOException, ProcessingException {
+			throws IOException, ProcessingException, ParseException {
 		boolean result = true;
+		
 		
 		result &= validate("res/boardSchema.json", "res/board.json");
 		result &= validate("res/standardGame6Schema.json", 

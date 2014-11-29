@@ -4,7 +4,7 @@ package com.boardgame.game;
  * Represents a base on the map.
  *
  */
-class Base {
+final class Base {
 	private static final int DEFAULT_DEFENSE = 0;
 	private static final boolean DEFAULT_IS_DEFENSE_ACTIVE = true;
 	

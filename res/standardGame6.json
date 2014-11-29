@@ -2,7 +2,7 @@
 	"factionsToPlayers" : {
 		"RED" : {
 			"combatCardsInHand" : [
-				
+				0, 1, 2
 			],
 			"combatCardsDiscard" : [],
 			"units" : [
@@ -13,7 +13,7 @@
 		},
 		"ORANGE" : {
 			"combatCardsInHand" : [
-				
+				0, 1, 2
 			],
 			"combatCardsDiscard" : [],
 			"units" : [
@@ -24,7 +24,7 @@
 		},
 		"YELLOW" : {
 			"combatCardsInHand" : [
-				
+				0, 1, 2
 			],
 			"combatCardsDiscard" : [],
 			"units" : [
@@ -35,7 +35,7 @@
 		},
 		"GREEN" : {
 			"combatCardsInHand" : [
-				
+				0, 1, 2
 			],
 			"combatCardsDiscard" : [],
 			"units" : [
@@ -46,7 +46,7 @@
 		},
 		"WHITE" : {
 			"combatCardsInHand" : [
-				
+				0, 1, 2
 			],
 			"combatCardsDiscard" : [],
 			"units" : [
@@ -57,7 +57,7 @@
 		},
 		"BLACK" : {
 			"combatCardsInHand" : [
-				
+				0, 1, 2
 			],
 			"combatCardsDiscard" : [],
 			"units" : [
@@ -129,29 +129,81 @@
 		}
 	],
 	"eventCards1Stack" : [
-		
+		0, 1
 	],
 	"eventCards1Discard" : [
 		
 	],
 	"eventCards2Stack" : [
-		
+		0, 1
 	],
 	"eventCards2Discard" : [
 		
 	],
 	"eventCards3Stack" : [
-		
+		0, 1
 	],
 	"eventCards3Discard" : [
 		
 	],
+	"eventCards1" : [
+		{
+			"name" : "Event Card 1 #0"
+		},
+		{
+			"name" : "Event Card 1 #1"
+		}
+	],
+	"eventCards2" : [
+		{
+			"name" : "Event Card 2 #0"
+		},
+		{
+			"name" : "Event Card 2 #1"
+		}
+	],
+	"eventCards3" : [
+		{
+			"name" : "Event Card 3 #0"
+		},
+		{
+			"name" : "Event Card 3 #1"
+		}
+	],
 	"threatCardsStack" : [
-	
+		0, 1
 	],
 	"threatCardsDiscard" : [
 		
 	],
+	"threatCards" : [
+		{
+			"name" : "Threat Card 0"
+		},
+		{
+			"name" : "Threat Card 1"
+		}
+	],
+	"combatCards" : [
+		{
+			"name" : "Combat card 0",
+			"strength" : 2,
+			"killingPotential" : 1,
+			"deathDefense" : 1
+		},
+		{
+			"name" : "Combat card 1",
+			"strength" : 0,
+			"killingPotential" : 0,
+			"deathDefense" : 2
+		},
+		{
+			"name" : "Combat card 2",
+			"strength" : 4,
+			"killingPotential" : 2,
+			"deathDefense" : 0
+		}
+	],
 	"hasCombatBonusBeenUsed" : false,
-	"hasSightPowerBeenUsed" : false
+	"hasSightPowerBeenUsed" : false	
 }

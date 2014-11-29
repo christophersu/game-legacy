@@ -4,11 +4,11 @@ package com.boardgame.game;
  * General properties for a combat card. Immutable.
  *
  */
-abstract class AbstractCombatCard {
+class AbstractCombatCard {
+	private final String name;
 	private final int strength;
 	private final int killingPotential;
 	private final int deathDefense;
-	private final String name;
 	
 	/**
 	 * Creates a new combat card with the given name, strength, 

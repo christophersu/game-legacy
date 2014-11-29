@@ -10,17 +10,20 @@
 						"combatCardsInHand" : {
 							"type" : "array",
 							"items" : {
-								"type" : "string",
-								"minLength" : 1
-							}
+								"type" : "integer",
+								"minimum" : 0
+							},
+							"additionalItems" : false,
+							"uniqueItems" : true
 						},
 						"combatCardsDiscard" : {
 							"type" : "array",
 							"items" : {
-								"type" : "string",
-								"minLength" : 1
+								"type" : "integer",
+								"minimum" : 0
 							},
-							"additionalItems" : false
+							"additionalItems" : false,
+							"uniqueItems" : true
 						},
 						"units" : {
 							"type" : "array",
@@ -95,36 +98,6 @@
 			"type" : "integer",
 			"minimum" : 1,
 			"maximum" : 10
-		},			
-		"eventCards1Stack" : {
-			"type" : "array",
-			"items" : {
-				"type" : "string",
-				"minLength" : 1
-			},
-			"additionalItems" : false,
-			"uniqueItems" : true
-		},
-		"eventCards1Discard" : {
-			"$ref" : "#/properties/eventCards1Stack"
-		},
-		"eventCards2Stack" : {
-			"$ref" : "#/properties/eventCards1Stack"
-		},
-		"eventCards2Discard" : {
-			"$ref" : "#/properties/eventCards1Stack"
-		},
-		"eventCards3Stack" : {
-			"$ref" : "#/properties/eventCards1Stack"
-		},
-		"eventCards3Discard" : {
-			"$ref" : "#/properties/eventCards1Stack"
-		},
-		"threatCardsStack" : {
-			"$ref" : "#/properties/eventCards1Stack"
-		},
-		"threatCardsDiscard" : {
-			"$ref" : "#/properties/eventCards1Stack"
 		},
 		"locationAdditions" : {
 			"type" : "array",
@@ -166,6 +139,89 @@
 			},
 			"additionalItems" : false
 		},
+		"eventCards1Stack" : {
+			"type" : "array",
+			"items" : {
+				"type" : "integer",
+				"minimum" : 0
+			},
+			"additionalItems" : false,
+			"uniqueItems" : true
+		},
+		"eventCards1Discard" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"eventCards2Stack" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"eventCards2Discard" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"eventCards3Stack" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"eventCards3Discard" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"eventCards1" : {
+			"type" : "array",
+			"items" : {
+				"type" : "object",
+				"properties" : {
+					"name" : {
+						"type" : "string",
+						"minLength" : 1
+					}
+				},
+				"additionalProperties" : false,
+				"required" : ["name"]
+			},
+			"additionalItems" : false,
+			"uniqueItems" : true
+		},
+		"eventCards2" : {
+			"$ref" : "#/properties/eventCards1"
+		},
+		"eventCards3" : {
+			"$ref" : "#/properties/eventCards1"
+		},
+		"threatCardsStack" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"threatCardsDiscard" : {
+			"$ref" : "#/properties/eventCards1Stack"
+		},
+		"threatCards" : {
+			"$ref" : "#/properties/eventCards1"
+		},
+		"combatCards" : {
+			"type" : "array",
+			"items" : {
+				"type" : "object",
+				"properties" : {
+					"name" : {
+						"type" : "string",
+						"minLength" : 1
+					},
+					"strength" : {
+						"type" : "integer",
+						"minimum" : 0
+					},
+					"killingPotential" : {
+						"type" : "integer",
+						"minimum" : 0
+					},
+					"deathDefense" : {
+						"type" : "integer",
+						"minimum" : 0
+					}
+				},
+				"additionalProperties" : false,
+				"required" : ["name", "strength", "killingPotential", "deathDefense"]
+			},
+			"additionalItems" : false,
+			"uniqueItems" : true
+		},
 		"hasCombatBonusBeenUsed" : {
 			"type" : "boolean"
 		},
@@ -176,7 +232,8 @@
 	"additionalProperties" : false,
 	"required" : ["factionsToPlayers", "turnOrder", "tieBreakingOrder", "specialTokenOrder", 
 					"specialTokensPerPosition", "factionsToSupplies", "factionsToNumBases", 
-					"threatLevel", "round", "eventCards1Stack", "eventCards2Stack",
-					"eventCards3Stack", "threatCardsStack", "hasCombatBonusBeenUsed", 
-					"hasSightPowerBeenUsed"]
+					"threatLevel", "round", "locationAdditions", "eventCards1Stack", 
+					"eventCards2Stack", "eventCards3Stack", "eventCards1", "eventCards2",
+					"eventCards3", "threatCardsStack", "threatCards", "combatCards", 
+					"hasCombatBonusBeenUsed", "hasSightPowerBeenUsed"]
 }

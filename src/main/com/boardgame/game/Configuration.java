@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import org.json.simple.JSONArray;
@@ -20,16 +22,37 @@ import com.boardgame.game.Location.Terrain;
  * Represents configuration information for different game types.
  *
  */
-class Configuration {
+final class Configuration {
 	//this object assumes the JSON files have been validated against their 
 	//schemas
 	
 	private static final String PATH = "res/";
 	
 	private final JSONObject jsonConfiguration;
-	private final Map<Faction, Player> factionsToPlayers;
-	private final List<Location> locations;
+
 	private final GameType gameType;
+	private final List<Location> locations;
+	
+	private final Map<Faction, Player> factionsToPlayers;
+	private final List<Faction> turnOrder;
+	private final List<Faction> tieBreakingOrder;
+	private final List<Faction> specialTokenOrder;
+	private final List<Integer> specialTokensPerPosition;
+	private final Map<Faction, Integer> factionsToSupplies;
+	private final Map<Faction, Integer> factionsToNumBases;
+	private final int threatLevel;
+	private final int round;
+	private final Queue<AbstractEventCard> eventCards1Stack;
+	private final Queue<AbstractEventCard> eventCards1Discard;
+	private final Queue<AbstractEventCard> eventCards2Stack;
+	private final Queue<AbstractEventCard> eventCards2Discard;
+	private final Queue<AbstractEventCard> eventCards3Stack;
+	private final Queue<AbstractEventCard> eventCards3Discard;
+	private final Queue<AbstractThreatCard> threatCardsStack;
+	private final Queue<AbstractThreatCard> threatCardsDiscard;
+	private final List<AbstractCombatCard> combatCards;
+	private final boolean hasCombatBonusBeenUsed;
+	private final boolean hasSightPowerBeenUsed;
 	
 	enum GameType {
 		STANDARD_6
@@ -44,10 +67,12 @@ class Configuration {
 	 * other file issue happens
 	 * @throws IllegalArgumentException if gameType is null
 	 */
-	Configuration(GameType gameType) throws IOException, ParseException {
+	public Configuration(GameType gameType) throws IOException, ParseException {
 		if (gameType == null) {
 			throw new IllegalArgumentException("Game type was null.");
 		}
+
+		this.gameType = gameType;
 		
 		locations = findLocations();
 		
@@ -56,8 +81,74 @@ class Configuration {
 		JSONParser parser = new JSONParser();
 		jsonConfiguration = (JSONObject) parser.parse(fileReader);
 
+		combatCards = findCombatCards();
 		factionsToPlayers = findFactionsToPlayers();
-		this.gameType = gameType;
+		turnOrder = findTurnOrder();
+		tieBreakingOrder = findTieBreakingOrder();
+		specialTokenOrder = findSpecialTokenOrder();
+		specialTokensPerPosition = findSpecialTokensPerPosition();
+		factionsToSupplies = findFactionsToSupplies();
+		factionsToNumBases = findFactionsToNumBases();
+		threatLevel = findThreatLevel();
+		round = findRound();
+		loadLocationAdditions();
+
+		List<Long> eventCards1StackIndexes = (List<Long>) 
+				jsonConfiguration.get("eventCards1Stack");
+		List<Long> eventCards1DiscardIndexes = (List<Long>) 
+				jsonConfiguration.get("eventCards1Discard");
+		List<AbstractEventCard> eventCards1 = (List<AbstractEventCard>) 
+				jsonConfiguration.get("eventCards1");
+		
+		List<Long> eventCards2StackIndexes = (List<Long>) 
+				jsonConfiguration.get("eventCards2Stack");
+		List<Long> eventCards2DiscardIndexes = (List<Long>) 
+				jsonConfiguration.get("eventCards2Discard");
+		List<AbstractEventCard> eventCards2 = (List<AbstractEventCard>) 
+				jsonConfiguration.get("eventCards2");
+		
+		List<Long> eventCards3StackIndexes = (List<Long>) 
+				jsonConfiguration.get("eventCards3Stack");
+		List<Long> eventCards3DiscardIndexes = (List<Long>) 
+				jsonConfiguration.get("eventCards3Discard");
+		List<AbstractEventCard> eventCards3 = (List<AbstractEventCard>) 
+				jsonConfiguration.get("eventCards3");
+
+		List<AbstractEventCard> eventCards1StackList = 
+				buildSublist(eventCards1StackIndexes, eventCards1);
+		List<AbstractEventCard> eventCards1DiscardList = 
+				buildSublist(eventCards1DiscardIndexes, eventCards1);
+		List<AbstractEventCard> eventCards2StackList = 
+				buildSublist(eventCards2StackIndexes, eventCards2);
+		List<AbstractEventCard> eventCards2DiscardList = 
+				buildSublist(eventCards2DiscardIndexes, eventCards2);
+		List<AbstractEventCard> eventCards3StackList = 
+				buildSublist(eventCards3StackIndexes, eventCards3);
+		List<AbstractEventCard> eventCards3DiscardList = 
+				buildSublist(eventCards3DiscardIndexes, eventCards3);
+		eventCards1Stack = new LinkedList<>(eventCards1StackList);
+		eventCards1Discard = new LinkedList<>(eventCards1DiscardList);
+		eventCards2Stack = new LinkedList<>(eventCards2StackList);
+		eventCards2Discard = new LinkedList<>(eventCards2DiscardList);
+		eventCards3Stack = new LinkedList<>(eventCards3StackList);
+		eventCards3Discard= new LinkedList<>(eventCards3DiscardList);
+		
+		List<Long> threatCardsStackIndexes = (List<Long>) 
+				jsonConfiguration.get("threatCardsStack");
+		List<Long> threatCardsDiscardIndexes = (List<Long>) 
+				jsonConfiguration.get("threatCardsDiscard");
+		List<AbstractThreatCard> threatCards = (List<AbstractThreatCard>) 
+				jsonConfiguration.get("threatCards");
+		
+		List<AbstractThreatCard> threatCardsStackList = 
+				buildSublist(threatCardsStackIndexes, threatCards);
+		List<AbstractThreatCard> threatCardsDiscardList = 
+				buildSublist(threatCardsDiscardIndexes, threatCards);
+		
+		threatCardsStack = new LinkedList<>(threatCardsStackList);
+		threatCardsDiscard = new LinkedList<>(threatCardsDiscardList);
+		hasCombatBonusBeenUsed = findHasCombatBonusBeenUsed();
+		hasSightPowerBeenUsed = findHasSightPowerBeenUsed();
 	}
 	
 	/**
@@ -82,12 +173,32 @@ class Configuration {
 		for (Object locationsArrayElement : locationsArray) {
 			JSONObject locationObject = (JSONObject) locationsArrayElement;
 			String name = (String) locationObject.get("name");
-			Terrain terrain = (Terrain) locationObject.get("terrain");
+			String terrainString = (String) locationObject.get("terrain");
+			Terrain terrain = Terrain.valueOf(terrainString);
+			Base base = null;
+			
 			JSONObject baseObject = (JSONObject) locationObject.get("base");
-			int baseSize = (Integer) baseObject.get("size");
-			Base base = new Base(baseSize);
-			int supply = (Integer) locationObject.get("supply");
-			int invest = (Integer) locationObject.get("invest");
+			
+			if (baseObject != null) {
+				int baseSize = ((Long) baseObject.get("size")).intValue();
+				base = new Base(baseSize);	
+			}
+			
+			int supply = 0;
+			
+			Long supplyLong = (Long) locationObject.get("supply");
+			
+			if (supplyLong != null) {
+				supply = supplyLong.intValue();
+			}
+
+			int invest = 0;
+			
+			Long investLong = (Long) locationObject.get("invest");
+			
+			if (investLong != null) {
+				invest = investLong.intValue();
+			}
 			
 			Location location = 
 					new Location(name, terrain, base, supply, invest);
@@ -106,8 +217,8 @@ class Configuration {
 		for (Object adjacenciesArrayElement : adjacenciesArray) {
 			JSONArray adjacencyPair = (JSONArray) adjacenciesArrayElement;
 
-			int locationIndexA = (Integer) adjacencyPair.get(0);
-			int locationIndexB = (Integer) adjacencyPair.get(1);
+			int locationIndexA = ((Long) adjacencyPair.get(0)).intValue();
+			int locationIndexB = ((Long) adjacencyPair.get(1)).intValue();
 			
 			if (locationIndexA >= resultLocations.size() || 
 					locationIndexB >= resultLocations.size()) {
@@ -140,7 +251,7 @@ class Configuration {
 		
 		switch (gameType) {
 			case STANDARD_6 :
-				return "standard6.json";
+				return "standardGame6.json";
 			default :
 				throw new IllegalStateException("Game type not in switch "
 						+ "statement: " + gameType);
@@ -186,15 +297,107 @@ class Configuration {
 				(JSONObject) jsonConfiguration.get("factionsToPlayers");
 		JSONObject playerConf = (JSONObject) playersConf.get(factionKey);
 		
-		JSONArray combatCardsConf = (JSONArray) playerConf.get("combatCards");
+		List<Long> combatCardsConf = 
+				(List<Long>) playerConf.get("combatCardsInHand");
+
 		JSONArray unitsConf = (JSONArray) playerConf.get("units");
-		int cashInHand = (Integer) playerConf.get("cashInHand");
-		int cashPool = (Integer) playerConf.get("cashPool");
+		int cashInHand = ((Long) playerConf.get("cashInHand")).intValue();
+		int cashPool = ((Long) playerConf.get("cashPool")).intValue();
 		
-		Set<AbstractCombatCard> combatCards = new HashSet<>(combatCardsConf);
+		List<AbstractCombatCard> combatCardsInHandList = 
+				buildSublist(combatCardsConf, combatCards);
+		Set<AbstractCombatCard> combatCardsInHand = 
+				new HashSet<>(combatCardsInHandList);
 		Set<AbstractUnit> units = new HashSet<>(unitsConf);
 		
-		return new Player(combatCards, units, cashInHand, cashPool);
+		return new Player(combatCardsInHand, units, cashInHand, cashPool);
+	}
+	
+	private List<Faction> findTurnOrder() {
+		return (List<Faction>) jsonConfiguration.get("turnOrder");
+	}
+	
+	private List<Faction> findTieBreakingOrder() {
+		return (List<Faction>) jsonConfiguration.get("tieBreakingOrder");
+	}
+	
+	private List<Faction> findSpecialTokenOrder() {
+		return (List<Faction>) jsonConfiguration.get("specialTokenOrder");
+	}
+	
+	private List<Integer> findSpecialTokensPerPosition() {
+		return (List<Integer>) 
+				jsonConfiguration.get("specialTokensPerPosition");
+	}
+	
+	private Map<Faction, Integer> findFactionsToSupplies() {
+		return (Map<Faction, Integer>) 
+				jsonConfiguration.get("factionsToSupplies"); 
+	}
+	
+	private Map<Faction, Integer> findFactionsToNumBases() {
+		return (Map<Faction, Integer>) 
+				jsonConfiguration.get("factionsToNumBases");
+	}
+	
+	private int findThreatLevel() {
+		return ((Long) jsonConfiguration.get("threatLevel")).intValue();
+	}
+	
+	private int findRound() {
+		return ((Long) jsonConfiguration.get("round")).intValue();
+	}
+	
+	private void loadLocationAdditions() {
+		throw new UnsupportedOperationException();
+	}
+
+	private <T> List<T> buildSublist(List<Long> indexes, List<T> items) {
+		List<T> result = new ArrayList<>();
+		
+		for (Long i : indexes) {
+			int index = i.intValue();
+			
+			
+			if (index >= items.size()) {
+				throw new RuntimeException("Index outside bounds: " + index);
+			}
+			
+			result.add(items.get(index));
+		}
+		
+		return result;
+	}
+	
+	private List<AbstractCombatCard> findCombatCards() {
+		List<AbstractCombatCard> result = new ArrayList<>();
+		
+		JSONArray combatCardArray = 
+				(JSONArray) jsonConfiguration.get("combatCards");
+		
+		for (Object combatCardArrayElement : combatCardArray) {
+			JSONObject combatCardObject = (JSONObject) combatCardArrayElement;
+			String name = (String) combatCardObject.get("name");
+			Integer strength = 
+					((Long) combatCardObject.get("strength")).intValue();
+			Integer killingPotential = 
+				((Long) combatCardObject.get("killingPotential")).intValue();
+			Integer deathDefense = 
+					((Long) combatCardObject.get("deathDefense")).intValue();
+			AbstractCombatCard card = new AbstractCombatCard(name, strength, 
+					killingPotential, deathDefense);
+			result.add(card);
+		}
+		
+		return result;
+	}
+	
+	private boolean findHasCombatBonusBeenUsed() {
+		return (Boolean) jsonConfiguration.get("hasCombatBonusBeenUsed");
+	}
+	
+	private boolean findHasSightPowerBeenUsed() {
+		return (Boolean) jsonConfiguration.get("hasSightPowerBeenUsed");
 	}
 	
 	/**
