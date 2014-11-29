@@ -2,6 +2,8 @@ package com.boardgame.game;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents a location on the game board.
@@ -13,6 +15,8 @@ final class Location {
 	private final Base base;
 	private final int supply;
 	private final int invest;
+	
+	private final Set<Location> adjacentLocations;
 	
 	//owner == null -> units.isEmpty()
 	//actionToken != null -> owner != null
@@ -76,9 +80,32 @@ final class Location {
 		this.supply = supply;
 		this.invest = invest;
 		
+		adjacentLocations = new HashSet<>();
 		units = new ArrayList<AbstractUnit>();
 		owner = null;
 		actionToken = null;
+	}
+	
+	/**
+	 * Adds the given other location as a location adjacent to this one
+	 * @param other  the soon to be adjacent location, can't be equal to this 
+	 * location, not null
+	 * @throws IllegalArgumentException if other is null
+	 * @throws IllegalArgumentException if other equals this
+	 * @return true if other hadn't previously been considered adjacent
+	 */
+	boolean addAdjacentLocation(Location other) {
+		if (other == null) {
+			throw new IllegalArgumentException("Other was null.");
+		}
+		
+		if (this.equals(other)) {
+			throw new IllegalArgumentException("Other was equal to this.");
+		}
+		
+		assert(adjacentLocations != null);
+		
+		return adjacentLocations.add(other);
 	}
 	
 	/**
@@ -195,6 +222,22 @@ final class Location {
 	 */
 	void removeActionToken() {
 		actionToken = null;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Location)) {
+			return false;
+		}
+		
+		Location other = (Location) o;
+		
+		return this.name.equals(other.name);
+	}
+	
+	@Override
+	public int hashCode() {
+		return name.hashCode();
 	}
 	
 	/**

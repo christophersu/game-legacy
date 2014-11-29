@@ -49,7 +49,7 @@ public class LocationTest {
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testBaseOnNonLand() {
-		new Location("location name", Terrain.SEA, new Base(1, 2), 1, 2);
+		new Location("location name", Terrain.SEA, new Base(1), 1, 2);
 	}
 	                                               
 	@Test                                          
