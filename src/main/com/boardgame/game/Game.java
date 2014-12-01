@@ -11,19 +11,20 @@ import org.json.simple.parser.ParseException;
  *
  */
 public final class Game {
-	private GameState gameState;
+	private final IntegersToObjects integersToObjects;
+	private final GameState gameState;
 	
 	public Game(GameState gameState) {
 		if (gameState == null) {
 			throw new IllegalArgumentException("Game state was null.");
 		}
 		
+		this.integersToObjects = new IntegersToObjects(gameState);
 		this.gameState = gameState;
 	}
 	
-	//TODO
 	public void addPlayer(int playerId, Faction faction) {
-		throw new UnsupportedOperationException();
+		
 	}
 	
 	public void removePlayer(int playerId) {
@@ -34,16 +35,16 @@ public final class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void placeToken(Player player, AbstractActionToken token, 
+	public void placeToken(Faction faction, AbstractActionToken token, 
 			Location location) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void removeToken(Player player, Location location) {
+	public void removeToken(Faction faction, Location location) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void switchToken(Player player, Location location, 
+	public void switchToken(Faction faction, Location location, 
 			AbstractActionToken nextToken) {
 		throw new UnsupportedOperationException();
 	}
@@ -52,11 +53,11 @@ public final class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public Set<AbstractActionToken> getTokenChoices(Player player) {
+	public Set<AbstractActionToken> getTokenChoices(Faction faction) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public Set<Location> getValidLocationTargets(Player player, 
+	public Set<Location> getValidLocationTargets(Faction faction, 
 			AbstractActionToken token) {
 		throw new UnsupportedOperationException();
 	}
@@ -65,45 +66,46 @@ public final class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void useToken(Player player, AbstractActionToken token, 
+	public void useToken(Faction faction, AbstractActionToken token, 
 			Location tokenLocation, Location target) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void resetToken(Player player, AbstractActionToken token) {
+	public void resetToken(Faction faction, AbstractActionToken token) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void support(Player supportingPlayer, Location supportingLocation, 
-			Player supportedPlayer) {
+	public void support(Faction supportingFaction, Location supportingLocation, 
+			Faction supportedFaction) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void useCombatCard(Player player, AbstractCombatCard combatCard) {
+	public void useCombatCard(Faction faction, AbstractCombatCard combatCard) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void useCombatBonus(Player player) {
+	public void useCombatBonus(Faction faction) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void retreat(int defeatedPlayer, int retreatingUnit, int target) {
+	public void retreat(Faction defeatedFaction, AbstractUnit retreatingUnit, 
+			Location target) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void spawnUnit(Player player, Location location, AbstractUnit unit) {
+	public void spawnUnit(Faction faction, Location location, AbstractUnit unit) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void bid(Player player, int bid) {
+	public void bid(Faction faction, int bid) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void breakTie(Player loser, Player winner) {
+	public void breakTie(Faction loser, Faction winner) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void setUserReady(Player player, boolean isReady) {
+	public void setUserReady(Faction faction, boolean isReady) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -115,7 +117,7 @@ public final class Game {
 		throw new UnsupportedOperationException();
 	}
 
-	public String getSnapshotForPlayer(Player player) {
+	public String getSnapshotForPlayer(Faction faction) {
 		throw new UnsupportedOperationException();
 	}
 }
