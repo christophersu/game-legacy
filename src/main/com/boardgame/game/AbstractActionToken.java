@@ -4,7 +4,7 @@ package com.boardgame.game;
  * Represents a general action token.
  *
  */
-abstract class AbstractActionToken {
+class AbstractActionToken {
 	private final boolean isSpecial;
 	
 	/**
@@ -13,5 +13,10 @@ abstract class AbstractActionToken {
 	 */
 	AbstractActionToken(boolean isSpecial) {
 		this.isSpecial = isSpecial;
+	}
+	
+	//temp
+	AbstractActionToken(String temp) {
+		this(false);
 	}
 }

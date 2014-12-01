@@ -3,12 +3,12 @@ package com.boardgame.game;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 
 import org.json.simple.JSONArray;
@@ -19,101 +19,64 @@ import org.json.simple.parser.ParseException;
 import com.boardgame.game.Location.Terrain;
 
 /**
- * Represents configuration information for different game types.
+ * Loads game state from a variety of sources.
  *
  */
-final class Configuration {
+public final class GameStateLoader {
 	//this object assumes the JSON files have been validated against their 
 	//schemas
 	
 	private static final String PATH = "res/";
 	
-	private final JSONObject jsonConfiguration;
-
-	private final GameType gameType;
-	private final List<Location> locations;
-	
-	private final Map<Faction, Player> factionsToPlayers;
-	private final List<Faction> turnOrder;
-	private final List<Faction> tieBreakingOrder;
-	private final List<Faction> specialTokenOrder;
-	private final List<Integer> specialTokensPerPosition;
-	private final Map<Faction, Integer> factionsToSupplies;
-	private final Map<Faction, Integer> factionsToNumBases;
-	private final int threatLevel;
-	private final int round;
-	private final Queue<AbstractEventCard> eventCards1Stack;
-	private final Queue<AbstractEventCard> eventCards1Discard;
-	private final Queue<AbstractEventCard> eventCards2Stack;
-	private final Queue<AbstractEventCard> eventCards2Discard;
-	private final Queue<AbstractEventCard> eventCards3Stack;
-	private final Queue<AbstractEventCard> eventCards3Discard;
-	private final Queue<AbstractThreatCard> threatCardsStack;
-	private final Queue<AbstractThreatCard> threatCardsDiscard;
-	private final List<AbstractCombatCard> combatCards;
-	private final boolean hasCombatBonusBeenUsed;
-	private final boolean hasSightPowerBeenUsed;
-	
 	enum GameType {
 		STANDARD_6
 	}
 	
-	/**
-	 * Creates a new configuration based on the information in the file with the
-	 * given filename.
-	 * @param gameType  the type of the game to load, not null
-	 * @throws ParseException if the file is not valid JSON
-	 * @throws IOException if the file with filename does not exist or some 
-	 * other file issue happens
-	 * @throws IllegalArgumentException if gameType is null
-	 */
-	public Configuration(GameType gameType) throws IOException, ParseException {
+	public static GameState load(GameType gameType) throws IOException, ParseException {
 		if (gameType == null) {
 			throw new IllegalArgumentException("Game type was null.");
 		}
-
-		this.gameType = gameType;
 		
-		locations = findLocations();
-		
-		String gameTypeFilename = getGameTypeFilename(gameType);
-		FileReader fileReader = new FileReader(PATH + gameTypeFilename);
+		switch (gameType) {
+			case STANDARD_6 :
+				return load("standardGame6.json");
+			default :
+				throw new IllegalStateException("Game type not in switch "
+						+ "statement: " + gameType);
+		}
+	}
+	
+	public static GameState load(String filename) throws IOException, ParseException {
+		FileReader fileReader = new FileReader(PATH + filename);
 		JSONParser parser = new JSONParser();
-		jsonConfiguration = (JSONObject) parser.parse(fileReader);
-
-		combatCards = findCombatCards();
-		factionsToPlayers = findFactionsToPlayers();
-		turnOrder = findTurnOrder();
-		tieBreakingOrder = findTieBreakingOrder();
-		specialTokenOrder = findSpecialTokenOrder();
-		specialTokensPerPosition = findSpecialTokensPerPosition();
-		factionsToSupplies = findFactionsToSupplies();
-		factionsToNumBases = findFactionsToNumBases();
-		threatLevel = findThreatLevel();
-		round = findRound();
-		loadLocationAdditions();
-
-		List<Long> eventCards1StackIndexes = (List<Long>) 
-				jsonConfiguration.get("eventCards1Stack");
-		List<Long> eventCards1DiscardIndexes = (List<Long>) 
-				jsonConfiguration.get("eventCards1Discard");
-		List<AbstractEventCard> eventCards1 = (List<AbstractEventCard>) 
-				jsonConfiguration.get("eventCards1");
+		JSONObject root = (JSONObject) parser.parse(fileReader);
 		
-		List<Long> eventCards2StackIndexes = (List<Long>) 
-				jsonConfiguration.get("eventCards2Stack");
-		List<Long> eventCards2DiscardIndexes = (List<Long>) 
-				jsonConfiguration.get("eventCards2Discard");
-		List<AbstractEventCard> eventCards2 = (List<AbstractEventCard>) 
-				jsonConfiguration.get("eventCards2");
+		GameState.Builder gameStateBuilder = new GameState.Builder();
 		
-		List<Long> eventCards3StackIndexes = (List<Long>) 
-				jsonConfiguration.get("eventCards3Stack");
-		List<Long> eventCards3DiscardIndexes = (List<Long>) 
-				jsonConfiguration.get("eventCards3Discard");
-		List<AbstractEventCard> eventCards3 = (List<AbstractEventCard>) 
-				jsonConfiguration.get("eventCards3");
+		List<AbstractCombatCard> combatCards = findCombatCards(root);
+		
+		gameStateBuilder.setCombatCards(combatCards)
+			.setFactionsToPlayers(findFactionsToPlayers(root, combatCards))
+			.setTurnOrder(findTurnOrder(root))
+			.setTieBreakingOrder(findTieBreakingOrder(root))
+			.setSpecialTokenOrder(findSpecialTokenOrder(root))
+			.setSpecialTokensPerPosition(findSpecialTokensPerPosition(root))
+			.setFactionsToSupplies(findFactionsToSupplies(root))
+			.setFactionsToNumBases(findFactionsToNumBases(root))
+			.setThreatLevel(findThreatLevel(root))
+			.setRound(findRound(root));
 
+		List<Long> eventCards1StackIndexes = findCardIndexes(root, "eventCards1Stack");
+		List<Long> eventCards1DiscardIndexes = findCardIndexes(root, "eventCards1Discard");
+		List<Long> eventCards2StackIndexes = findCardIndexes(root, "eventCards2Stack");
+		List<Long> eventCards2DiscardIndexes = findCardIndexes(root, "eventCards2Discard");
+		List<Long> eventCards3StackIndexes = findCardIndexes(root, "eventCards3Stack");
+		List<Long> eventCards3DiscardIndexes = findCardIndexes(root, "eventCards3Discard"); 
+
+		List<AbstractEventCard> eventCards1 = findCards(root, "eventCards1");
+		List<AbstractEventCard> eventCards2 = findCards(root, "eventCards2");
+		List<AbstractEventCard> eventCards3 = findCards(root, "eventCards3");
+		
 		List<AbstractEventCard> eventCards1StackList = 
 				buildSublist(eventCards1StackIndexes, eventCards1);
 		List<AbstractEventCard> eventCards1DiscardList = 
@@ -126,29 +89,36 @@ final class Configuration {
 				buildSublist(eventCards3StackIndexes, eventCards3);
 		List<AbstractEventCard> eventCards3DiscardList = 
 				buildSublist(eventCards3DiscardIndexes, eventCards3);
-		eventCards1Stack = new LinkedList<>(eventCards1StackList);
-		eventCards1Discard = new LinkedList<>(eventCards1DiscardList);
-		eventCards2Stack = new LinkedList<>(eventCards2StackList);
-		eventCards2Discard = new LinkedList<>(eventCards2DiscardList);
-		eventCards3Stack = new LinkedList<>(eventCards3StackList);
-		eventCards3Discard= new LinkedList<>(eventCards3DiscardList);
+
+		gameStateBuilder.setEventCards1Stack(new LinkedList<>(eventCards1StackList))
+			.setEventCards1Discard(new LinkedList<>(eventCards1DiscardList))
+			.setEventCards2Stack(new LinkedList<>(eventCards2StackList))
+			.setEventCards2Discard(new LinkedList<>(eventCards2DiscardList))
+			.setEventCards3Stack(new LinkedList<>(eventCards3StackList))
+			.setEventCards3Discard(new LinkedList<>(eventCards3DiscardList));
+
+		List<Long> threatCardsStackIndexes = findCardIndexes(root, "threatCardsStack");
+		List<Long> threatCardsDiscardIndexes = findCardIndexes(root, "threatCardsDiscard");
 		
-		List<Long> threatCardsStackIndexes = (List<Long>) 
-				jsonConfiguration.get("threatCardsStack");
-		List<Long> threatCardsDiscardIndexes = (List<Long>) 
-				jsonConfiguration.get("threatCardsDiscard");
-		List<AbstractThreatCard> threatCards = (List<AbstractThreatCard>) 
-				jsonConfiguration.get("threatCards");
-		
+		List<AbstractThreatCard> threatCards = findCards(root, "threatCards");
+
 		List<AbstractThreatCard> threatCardsStackList = 
 				buildSublist(threatCardsStackIndexes, threatCards);
 		List<AbstractThreatCard> threatCardsDiscardList = 
 				buildSublist(threatCardsDiscardIndexes, threatCards);
+
+		gameStateBuilder.setThreatCardsStack(new LinkedList<>(threatCardsStackList))
+			.setThreatCardsDiscard(new LinkedList<>(threatCardsDiscardList));
 		
-		threatCardsStack = new LinkedList<>(threatCardsStackList);
-		threatCardsDiscard = new LinkedList<>(threatCardsDiscardList);
-		hasCombatBonusBeenUsed = findHasCombatBonusBeenUsed();
-		hasSightPowerBeenUsed = findHasSightPowerBeenUsed();
+		gameStateBuilder.setHasCombatBonusBeenUsed(findHasCombatBonusBeenUsed(root))
+			.setHasSightPowerBeenUsed(findHasSightPowerBeenUsed(root));
+		
+		List<Location> locations = findLocations();
+		
+		loadLocationAdditions(root, locations);
+		gameStateBuilder.setLocations(locations);
+		
+		return gameStateBuilder.build();
 	}
 	
 	/**
@@ -158,7 +128,7 @@ final class Configuration {
 	 * @throws ParseException if the JSON is parsed incorrectly
 	 * @throws IOException if the file couldn't be read correctly
 	 */
-	private List<Location> findLocations() throws IOException, ParseException {
+	private static List<Location> findLocations() throws IOException, ParseException {
 		String boardFilename = "board.json";
 		FileReader fileReader = new FileReader(PATH + boardFilename);
 		JSONParser parser = new JSONParser();
@@ -246,7 +216,7 @@ final class Configuration {
 	 * @return the name of the file with the configuration for the given game 
 	 * type
 	 */
-	private String getGameTypeFilename(GameType gameType) {
+	private static String getGameTypeFilename(GameType gameType) {
 		assert(gameType != null);
 		
 		switch (gameType) {
@@ -262,9 +232,8 @@ final class Configuration {
 	 * Finds the set of valid numbers of players
 	 * @return the set of valid numbers of players, not null, no null elements
 	 */
-	private Set<Integer> findValidNumPlayers() {
-		JSONArray validNumPlayersArray = 
-				(JSONArray) jsonConfiguration.get("validNumPlayers");
+	private static Set<Integer> findValidNumPlayers(JSONObject root) {
+		JSONArray validNumPlayersArray = (JSONArray) root.get("validNumPlayers");
 		return new HashSet<>(validNumPlayersArray);
 	}
 	
@@ -273,11 +242,12 @@ final class Configuration {
 	 * @return the mapping of factions to player data, not null, no null 
 	 * elements
 	 */
-	private Map<Faction, Player> findFactionsToPlayers() {
+	private static Map<Faction, Player> findFactionsToPlayers(JSONObject root, 
+			List<AbstractCombatCard> combatCards) {
 		Map<Faction, Player> result = new HashMap<>();
 		
 		for (Faction faction : Faction.values()) {
-			result.put(faction, createPlayer(faction));
+			result.put(faction, createPlayer(root, combatCards, faction));
 		}
 		
 		return result;
@@ -288,13 +258,14 @@ final class Configuration {
 	 * @param faction  the player's faction, not null 
 	 * @return the player with the given faction
 	 */
-	private Player createPlayer(Faction faction) {
+	private static Player createPlayer(JSONObject root, 
+			List<AbstractCombatCard> combatCards, Faction faction) {
 		assert(faction != null);
 		
 		String factionKey = faction.toString();
 		
 		JSONObject playersConf = 
-				(JSONObject) jsonConfiguration.get("factionsToPlayers");
+				(JSONObject) root.get("factionsToPlayers");
 		JSONObject playerConf = (JSONObject) playersConf.get(factionKey);
 		
 		List<Long> combatCardsConf = 
@@ -313,46 +284,70 @@ final class Configuration {
 		return new Player(combatCardsInHand, units, cashInHand, cashPool);
 	}
 	
-	private List<Faction> findTurnOrder() {
-		return (List<Faction>) jsonConfiguration.get("turnOrder");
+	private static List<Faction> findTurnOrder(JSONObject root) {
+		return (List<Faction>) root.get("turnOrder");
 	}
 	
-	private List<Faction> findTieBreakingOrder() {
-		return (List<Faction>) jsonConfiguration.get("tieBreakingOrder");
+	private static List<Faction> findTieBreakingOrder(JSONObject root) {
+		return (List<Faction>) root.get("tieBreakingOrder");
 	}
 	
-	private List<Faction> findSpecialTokenOrder() {
-		return (List<Faction>) jsonConfiguration.get("specialTokenOrder");
+	private static List<Faction> findSpecialTokenOrder(JSONObject root) {
+		return (List<Faction>) root.get("specialTokenOrder");
 	}
 	
-	private List<Integer> findSpecialTokensPerPosition() {
-		return (List<Integer>) 
-				jsonConfiguration.get("specialTokensPerPosition");
-	}
-	
-	private Map<Faction, Integer> findFactionsToSupplies() {
-		return (Map<Faction, Integer>) 
-				jsonConfiguration.get("factionsToSupplies"); 
-	}
-	
-	private Map<Faction, Integer> findFactionsToNumBases() {
-		return (Map<Faction, Integer>) 
-				jsonConfiguration.get("factionsToNumBases");
-	}
-	
-	private int findThreatLevel() {
-		return ((Long) jsonConfiguration.get("threatLevel")).intValue();
-	}
-	
-	private int findRound() {
-		return ((Long) jsonConfiguration.get("round")).intValue();
-	}
-	
-	private void loadLocationAdditions() {
-		throw new UnsupportedOperationException();
-	}
-
-	private <T> List<T> buildSublist(List<Long> indexes, List<T> items) {
+	private static List<Integer> findSpecialTokensPerPosition(JSONObject root) {
+		return (List<Integer>) root.get("specialTokensPerPosition");
+	}       
+	        
+	private static Map<Faction, Integer> findFactionsToSupplies(JSONObject root) {
+		return (Map<Faction, Integer>) root.get("factionsToSupplies"); 
+	}       
+	        
+	private static Map<Faction, Integer> findFactionsToNumBases(JSONObject root) {
+		return (Map<Faction, Integer>) root.get("factionsToNumBases");
+	}       
+	        
+	private static int findThreatLevel(JSONObject root) {
+		return ((Long) root.get("threatLevel")).intValue();
+	}       
+	        
+	private static int findRound(JSONObject root) {
+		return ((Long) root.get("round")).intValue();
+	}       
+	        
+	private static void loadLocationAdditions(JSONObject root, 
+			List<Location> locations) {
+		JSONArray locationAdditionsArray = (JSONArray) root.get("locationAdditions");
+		
+		for (Object locationAdditionsElement : locationAdditionsArray) {
+			JSONObject locationAddition = (JSONObject) locationAdditionsElement;
+			JSONObject baseObject = (JSONObject) locationAddition.get("base");
+			String ownerString = (String) locationAddition.get("owner");
+			JSONArray unitsArray = (JSONArray) locationAddition.get("units");
+			String tokenString = (String) locationAddition.get("actionToken");
+			int targetLocationIndex = ((Long) locationAddition.get("targetLocation")).intValue();
+			
+			Location location = locations.get(targetLocationIndex);
+			
+			Base base = null;
+			
+			if (baseObject != null) {
+				int baseDefense = ((Long) baseObject.get("defense")).intValue();
+				base = new Base(location.getBaseStrength(), baseDefense);	
+			}
+			
+			Faction owner = ownerString == null ? null : Faction.valueOf(ownerString);
+			Collection<AbstractUnit> units = getUnits(unitsArray); 
+			AbstractActionToken actionToken = tokenString == null ? null : new AbstractActionToken(tokenString);
+			Location modifiedLocation = 
+					new Location(location, base, units, owner, actionToken);
+			
+			locations.set(targetLocationIndex, modifiedLocation);
+		}
+	}       
+            
+	private static <T> List<T> buildSublist(List<Long> indexes, List<T> items) {
 		List<T> result = new ArrayList<>();
 		
 		for (Long i : indexes) {
@@ -369,11 +364,10 @@ final class Configuration {
 		return result;
 	}
 	
-	private List<AbstractCombatCard> findCombatCards() {
+	private static List<AbstractCombatCard> findCombatCards(JSONObject root) {
 		List<AbstractCombatCard> result = new ArrayList<>();
 		
-		JSONArray combatCardArray = 
-				(JSONArray) jsonConfiguration.get("combatCards");
+		JSONArray combatCardArray = (JSONArray) root.get("combatCards");
 		
 		for (Object combatCardArrayElement : combatCardArray) {
 			JSONObject combatCardObject = (JSONObject) combatCardArrayElement;
@@ -392,35 +386,32 @@ final class Configuration {
 		return result;
 	}
 	
-	private boolean findHasCombatBonusBeenUsed() {
-		return (Boolean) jsonConfiguration.get("hasCombatBonusBeenUsed");
+	private static boolean findHasCombatBonusBeenUsed(JSONObject root) {
+		return (Boolean) root.get("hasCombatBonusBeenUsed");
 	}
 	
-	private boolean findHasSightPowerBeenUsed() {
-		return (Boolean) jsonConfiguration.get("hasSightPowerBeenUsed");
+	private static boolean findHasSightPowerBeenUsed(JSONObject root) {
+		return (Boolean) root.get("hasSightPowerBeenUsed");
 	}
 	
-	/**
-	 * @return a map of factions to player objects, not null, no null elements,
-	 * nonempty
-	 */
-	Map<Faction, Player> getFactionsToPlayers() {
-		return factionsToPlayers;
+	private static List<Long> findCardIndexes(JSONObject root, String key) {
+		return (List<Long>) root.get(key);
 	}
 	
-	/**
-	 * @return the locations on the board, not null, nonempty, no null elements
-	 */
-	List<Location> getLocations() {
-		return locations;
+	private static <T> List<T> findCards(JSONObject root, String key) {
+		return (List<T>) root.get(key);
 	}
 	
-	/**
-	 * @return the game type, not null
-	 */
-	GameType getGameType() {
-		return gameType;
+	private static Collection<AbstractUnit> getUnits(JSONArray units) {
+		Collection<AbstractUnit> result = new ArrayList<AbstractUnit>();
+		
+		if (units != null) {
+			for (Object element : units) {
+				String unitString = (String) element;
+				result.add((AbstractUnit) new AbstractUnit(unitString));
+			}	
+		}
+		
+		return result;
 	}
-	
-	
 }

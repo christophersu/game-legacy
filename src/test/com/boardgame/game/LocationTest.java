@@ -5,22 +5,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashSet;
-
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.boardgame.game.Location.Terrain;
 
 public class LocationTest {
-	private static Player player;
 	private Location location;
-	
-	@BeforeClass
-	public static void initialize() {
-		player = new Player(new HashSet<>(), new HashSet<>(), 0, 20);
-	}
 	
 	@Before
 	public void initializeTest() {
@@ -84,28 +75,28 @@ public class LocationTest {
 	
 	@Test
 	public void testAddOneUnit() {
-		location.changeOwner(player);
+		location.changeOwner(Faction.RED);
 		location.addUnit(new InfantryUnit());
 		assertTrue(location.hasUnits());
 	}
 	
 	@Test(expected=IllegalStateException.class)
 	public void testChangeOwnerWithUnitsLeft() {
-		location.changeOwner(player);
+		location.changeOwner(Faction.RED);
 		location.addUnit(new InfantryUnit());
 		location.changeOwner(null);
 	}
 	
 	@Test
 	public void testRemoveNonExistentUnit() {
-		location.changeOwner(player);
+		location.changeOwner(Faction.RED);
 		assertFalse(location.removeUnit(new InfantryUnit()));
 	}
 	
 	@Test
 	public void testRemoveAddedUnit() {
 		AbstractUnit unit = new InfantryUnit();
-		location.changeOwner(player);
+		location.changeOwner(Faction.RED);
 		location.addUnit(unit);
 		assertTrue(location.removeUnit(unit));
 		assertFalse(location.hasUnits());
@@ -120,7 +111,7 @@ public class LocationTest {
 	@Test
 	public void testPlaceToken() {
 		assertNull(location.getActionToken());
-		location.changeOwner(player);
+		location.changeOwner(Faction.RED);
 		AbstractActionToken token = new BlitzToken(true);
 		location.placeActionToken(token);
 		assertEquals(token, location.getActionToken());

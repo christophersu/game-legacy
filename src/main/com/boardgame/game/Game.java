@@ -11,20 +11,14 @@ import org.json.simple.parser.ParseException;
  *
  */
 public final class Game {
-	private Configuration configuration;
+	private GameState gameState;
 	
-	/**
-	 * Creates a new game with the given configuration.
-	 * @param configuration  the configuration for this game, not null
-	 * @throws IllegalArgumentException if configuration is null
-	 */
-	public Game(Configuration configuration) 
-			throws IOException, ParseException {
-		if (configuration == null) {
-			throw new IllegalArgumentException("Configuration was null.");
+	public Game(GameState gameState) {
+		if (gameState == null) {
+			throw new IllegalArgumentException("Game state was null.");
 		}
 		
-		this.configuration = configuration;
+		this.gameState = gameState;
 	}
 	
 	//TODO

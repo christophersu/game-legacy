@@ -24,7 +24,7 @@ final class Location {
 	//base != null -> terrain = LAND
 	
 	private final Collection<AbstractUnit> units;
-	private Player owner;
+	private Faction owner;
 	private AbstractActionToken actionToken;
 	
 	enum Terrain {
@@ -84,6 +84,38 @@ final class Location {
 		units = new ArrayList<AbstractUnit>();
 		owner = null;
 		actionToken = null;
+	}
+	
+	/**
+	 * Creates a location with characteristics of the given location with the 
+	 * other parameters taking precedent.
+	 * @param location  the location on which this is based, not null
+	 * @param base  the new base
+	 * @param units  the new units, not null
+	 * @param owner  the new owner
+	 * @param actionToken  the new action token
+	 * @throws IllegalArgumentException if location is null
+	 * @throws IllegalArgumentException if units is null
+	 */
+	Location(Location location, Base base, Collection<AbstractUnit> units, 
+			Faction owner, AbstractActionToken actionToken) {
+		if (location == null) {
+			throw new IllegalArgumentException("Location is null.");
+		}
+		
+		if (units == null) {
+			throw new IllegalArgumentException("Units is null.");
+		}
+		
+		this.name = location.name;
+		this.terrain = location.terrain;
+		this.base = base;
+		this.supply = location.supply;
+		this.invest = location.invest;
+		this.adjacentLocations = location.adjacentLocations;
+		this.units = units;
+		this.owner = owner;
+		this.actionToken = actionToken;
 	}
 	
 	/**
@@ -189,7 +221,7 @@ final class Location {
 	 * @throws IllegalStateException if the next owner is the same as this owner
 	 * @throws IllegalStateException if there are still units at this location
 	 */
-	void changeOwner(Player owner) {
+	void changeOwner(Faction owner) {
 		if (this.owner == owner) {
 			throw new IllegalStateException("Owner already owns this.");
 		}
@@ -205,7 +237,7 @@ final class Location {
 	 * Returns the owner of this location
 	 * @return the owner of this location, null means no owner
 	 */
-	Player getOwner() {
+	Faction getOwner() {
 		return owner;
 	}
 	

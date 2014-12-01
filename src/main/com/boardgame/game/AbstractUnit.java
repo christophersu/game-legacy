@@ -1,5 +1,8 @@
 package com.boardgame.game;
 
-abstract class AbstractUnit {
+class AbstractUnit {
 	
+	//temp
+	AbstractUnit(){}
+	AbstractUnit(String temp){}
 }
