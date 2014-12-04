@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-public final class GameState {
+final class GameState {
 	private final List<Location> locations;
 	private final Map<Faction, Player> factionsToPlayers;
 	private final List<Faction> turnOrder;
@@ -83,87 +83,91 @@ public final class GameState {
 		this.hasSightPowerBeenUsed = hasSightPowerBeenUsed;
 	}
 	
-	public List<Location> getLocations() {
+	int findNumPlayers() {
+		return factionsToPlayers.values().size();
+	}
+	
+	List<Location> getLocations() {
 		return locations;
 	}
 	
-	public Map<Faction, Player> getFactionsToPlayers() {
+	Map<Faction, Player> getFactionsToPlayers() {
 		return factionsToPlayers;
 	}
 
-	public List<Faction> getTurnOrder() {
+	List<Faction> getTurnOrder() {
 		return turnOrder;
 	}
 
-	public List<Faction> getTieBreakingOrder() {
+	List<Faction> getTieBreakingOrder() {
 		return tieBreakingOrder;
 	}
 
-	public List<Faction> getSpecialTokenOrder() {
+	List<Faction> getSpecialTokenOrder() {
 		return specialTokenOrder;
 	}
 
-	public List<Integer> getSpecialTokensPerPosition() {
+	List<Integer> getSpecialTokensPerPosition() {
 		return specialTokensPerPosition;
 	}
 
-	public Map<Faction, Integer> getFactionsToSupplies() {
+	Map<Faction, Integer> getFactionsToSupplies() {
 		return factionsToSupplies;
 	}
 
-	public Map<Faction, Integer> getFactionsToNumBases() {
+	Map<Faction, Integer> getFactionsToNumBases() {
 		return factionsToNumBases;
 	}
 
-	public int getThreatLevel() {
+	int getThreatLevel() {
 		return threatLevel;
 	}
 
-	public int getRound() {
+	int getRound() {
 		return round;
 	}
 
-	public Queue<AbstractEventCard> getEventCards1Stack() {
+	Queue<AbstractEventCard> getEventCards1Stack() {
 		return eventCards1Stack;
 	}
 
-	public Queue<AbstractEventCard> getEventCards1Discard() {
+	Queue<AbstractEventCard> getEventCards1Discard() {
 		return eventCards1Discard;
 	}
 
-	public Queue<AbstractEventCard> getEventCards2Stack() {
+	Queue<AbstractEventCard> getEventCards2Stack() {
 		return eventCards2Stack;
 	}
 
-	public Queue<AbstractEventCard> getEventCards2Discard() {
+	Queue<AbstractEventCard> getEventCards2Discard() {
 		return eventCards2Discard;
 	}
 
-	public Queue<AbstractEventCard> getEventCards3Stack() {
+	Queue<AbstractEventCard> getEventCards3Stack() {
 		return eventCards3Stack;
 	}
 
-	public Queue<AbstractEventCard> getEventCards3Discard() {
+	Queue<AbstractEventCard> getEventCards3Discard() {
 		return eventCards3Discard;
 	}
 
-	public Queue<AbstractThreatCard> getThreatCardsStack() {
+	Queue<AbstractThreatCard> getThreatCardsStack() {
 		return threatCardsStack;
 	}
 
-	public Queue<AbstractThreatCard> getThreatCardsDiscard() {
+	Queue<AbstractThreatCard> getThreatCardsDiscard() {
 		return threatCardsDiscard;
 	}
 
-	public List<AbstractCombatCard> getCombatCards() {
+	List<AbstractCombatCard> getCombatCards() {
 		return combatCards;
 	}
 
-	public boolean isHasCombatBonusBeenUsed() {
+	boolean hasCombatBonusBeenUsed() {
 		return hasCombatBonusBeenUsed;
 	}
 
-	public boolean isHasSightPowerBeenUsed() {
+	boolean hasSightPowerBeenUsed() {
 		return hasSightPowerBeenUsed;
 	}
 	

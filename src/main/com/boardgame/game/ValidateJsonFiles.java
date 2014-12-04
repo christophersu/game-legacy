@@ -2,64 +2,55 @@ package com.boardgame.game;
 
 import java.io.IOException;
 
-import org.json.simple.parser.ParseException;
-
-import com.boardgame.game.GameStateLoader.GameType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 
-public class ValidateJsonFiles {
-	public static void main(String[] args) 
-			throws IOException, ProcessingException, ParseException {
-		boolean result = true;
+class ValidateJsonFiles {
+	private static final String CONSTANT_SCHEMA_PATH = "res/boardSchema.json";
+	private static final String VARIABLE_SCHEMA_PATH = 
+			"res/standardGame6Schema.json";
+	
+	static boolean validateConstantGameState(String instancePath) {
+		assert instancePath != null : "Null instance path.";
 		
+		boolean isSuccess = false;
 		
-		result &= validate("res/boardSchema.json", "res/board.json");
-		result &= validate("res/standardGame6Schema.json", 
-				"res/standardGame6.json");
+		try {
+			isSuccess = validate(CONSTANT_SCHEMA_PATH, instancePath);
+		} catch (IOException | ProcessingException e) {}
 		
-		if (result) {
-			System.out.println("Success");
-		} else {
-			throw new RuntimeException("At least one file failed validation.");
-		}
+		return isSuccess;
 	}
 	
-	private static boolean validate(String schemaPath, String dataPath) 
-			throws IOException, ProcessingException {
-		JsonNode schemaNode, dataNode;
+	static boolean validateVariableGameState(String instancePath) {
+		assert instancePath != null : "Null instance path.";
 		
-		try {
-			schemaNode = JsonLoader.fromPath(schemaPath);	
-		}
-		catch (IOException e) {
-			System.err.println(schemaPath);
-			throw e;
-		}
-		
-		try {
-			dataNode = JsonLoader.fromPath(dataPath);	
-		}
-		catch (IOException e) {
+		boolean isSuccess = false;
 
-			System.err.println(dataPath);
-			throw e;
-		}
+		try {
+			isSuccess = validate(VARIABLE_SCHEMA_PATH, instancePath);
+		} catch (IOException | ProcessingException e) {}
+		
+		return isSuccess;
+	}
+	
+	private static boolean validate(String schemaPath, String instancePath) 
+			throws IOException, ProcessingException {
+		assert schemaPath != null;
+		assert instancePath != null;
+		
+		JsonNode schemaNode = JsonLoader.fromPath(schemaPath);	
+		JsonNode instanceNode = JsonLoader.fromPath(instancePath);
 		
 		JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
 		
 		JsonSchema schema = factory.getJsonSchema(schemaNode);
 		
-		ProcessingReport report = schema.validate(dataNode);
-		
-		for (ProcessingMessage message : report) {
-			System.out.println(message.getMessage());
-		}
+		ProcessingReport report = schema.validate(instanceNode);
 		
 		return report.isSuccess();
 	}

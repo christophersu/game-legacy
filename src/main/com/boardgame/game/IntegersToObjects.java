@@ -5,16 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 public final class IntegersToObjects {
-	private final Map<Integer, Faction> playerIdsToFactions;
-	private final List<Location> locations;
+	final Map<Integer, Faction> playerIdsToFactions;
+	final List<Location> locations;
 	
 	IntegersToObjects(GameState gameState) {
 		playerIdsToFactions = new HashMap<>();
 		locations = gameState.getLocations();
-	}
-	
-	Map<Integer, Faction> getModifiablePlayerIdsToFactions() {
-		return playerIdsToFactions;
 	}
 	
 	/**
@@ -46,4 +42,10 @@ public final class IntegersToObjects {
 		
 		return result;
 	}	
+	
+	void put(int playerId, Faction faction) {
+		playerIdsToFactions.put(playerId, faction);
+	}
+	
+	
 }

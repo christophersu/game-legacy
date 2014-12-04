@@ -1,9 +1,6 @@
 package com.boardgame.game;
 
-import java.io.IOException;
 import java.util.Set;
-
-import org.json.simple.parser.ParseException;
 
 /**
  * A game object that holds the state of the game and has methods that can 
@@ -14,6 +11,11 @@ public final class Game {
 	private final IntegersToObjects integersToObjects;
 	private final GameState gameState;
 	
+	/**
+	 * Creates a new game with the given initial game state
+	 * @param gameState  the initial game state, not null
+	 * @throws IllegalArgumentException if gameState is null
+	 */
 	public Game(GameState gameState) {
 		if (gameState == null) {
 			throw new IllegalArgumentException("Game state was null.");
@@ -23,11 +25,36 @@ public final class Game {
 		this.gameState = gameState;
 	}
 	
-	public void addPlayer(int playerId, Faction faction) {
-		
+	/**
+	 * Puts the player with the given playerId in the game (if not already), and
+	 * associates the player with the given faction. The association between 
+	 * playerId and faction is 1 to 1. 
+	 * @param playerId  an identifier for a particular player
+	 * @param faction  the faction that the player will be associated with, not
+	 * null
+	 * @throws IllegalArgumentException if faction is null
+	 * @throws IllegalStateException if the game is full and playerId is not 
+	 * already in the game
+	 * @return true if the player was successfully associated with the given 
+	 * faction, false if another player is already associated with the faction
+	 */
+	public boolean putPlayer(int playerId, Faction faction) {
+		throw new UnsupportedOperationException();
 	}
 	
-	public void removePlayer(int playerId) {
+	/**
+	 * Removes the player with the given id from the game.
+	 * @param playerId  an identifier for a particular player
+	 * @return whether the player existed previously
+	 */
+	public boolean removePlayer(int playerId) {
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * @return whether the game is full
+	 */
+	public boolean isGameFull() {
 		throw new UnsupportedOperationException();
 	}
 	

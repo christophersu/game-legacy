@@ -125,10 +125,6 @@
 						},
 						"additionalItems" : false
 					},
-					"actionToken" : {
-						"type" : "string",
-						"minLength" : 1
-					},
 					"targetLocation" : {
 						"type" : "integer",
 						"minimum" : 0

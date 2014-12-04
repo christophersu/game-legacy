@@ -1,5 +1,6 @@
 package com.boardgame.game;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,31 +24,52 @@ import com.boardgame.game.Location.Terrain;
  *
  */
 public final class GameStateLoader {
-	//this object assumes the JSON files have been validated against their 
-	//schemas
-	
-	private static final String PATH = "res/";
+	private static final String BOARD_PATH = "res/board.json";
+	private static final String STANDARD_6_PATH = "res/standardGame6.json";
 	
 	enum GameType {
 		STANDARD_6
 	}
 	
-	public static GameState load(GameType gameType) throws IOException, ParseException {
+	/**
+	 * Loads a game with the given game type
+	 * @param gameType  the type of the game to load, not null
+	 * @throws IllegalArgumentException if gameType is null
+	 * @return the state of the loaded game
+	 */
+	public static GameState load(GameType gameType) {
 		if (gameType == null) {
 			throw new IllegalArgumentException("Game type was null.");
 		}
 		
-		switch (gameType) {
-			case STANDARD_6 :
-				return load("standardGame6.json");
-			default :
-				throw new IllegalStateException("Game type not in switch "
-						+ "statement: " + gameType);
+		try {
+			switch (gameType) {
+				case STANDARD_6 :
+					return load(STANDARD_6_PATH);
+				default :
+					throw new IllegalStateException("Game type not in switch "
+							+ "statement: " + gameType);
+			}
+		} catch (IOException | ParseException | SchemaMatchingException e) {
+			throw new AssertionError(e);
 		}
 	}
 	
-	public static GameState load(String filename) throws IOException, ParseException {
-		FileReader fileReader = new FileReader(PATH + filename);
+	/**
+	 * Loads game state from the file with the given filePath.
+	 * @param filePath  the path to the file with the game state
+	 * @throws IOException if something goes wrong reading the file
+	 * @throws ParseException if the file could not be parsed correctly
+	 * @throws SchemaMatchingException if the file does not match its schema
+	 * @return the state of the loaded game
+	 */
+	public static GameState load(String filePath) 
+			throws IOException, ParseException, SchemaMatchingException {
+		if (!ValidateJsonFiles.validateVariableGameState(filePath)) {
+			throw new SchemaMatchingException();
+		}
+		
+		FileReader fileReader = new FileReader(filePath);
 		JSONParser parser = new JSONParser();
 		JSONObject root = (JSONObject) parser.parse(fileReader);
 		
@@ -113,32 +135,35 @@ public final class GameStateLoader {
 		gameStateBuilder.setHasCombatBonusBeenUsed(findHasCombatBonusBeenUsed(root))
 			.setHasSightPowerBeenUsed(findHasSightPowerBeenUsed(root));
 		
-		List<Location> locations = findLocations();
-		
-		loadLocationAdditions(root, locations);
-		gameStateBuilder.setLocations(locations);
-		
+		gameStateBuilder.setLocations(findLocations(root));
+
 		return gameStateBuilder.build();
 	}
 	
-	/**
-	 * Gets a list of the location objects for the board
-	 * @return a list of the location objects for the board, not null, nonempty,
-	 * no null elements
-	 * @throws ParseException if the JSON is parsed incorrectly
-	 * @throws IOException if the file couldn't be read correctly
-	 */
-	private static List<Location> findLocations() throws IOException, ParseException {
-		String boardFilename = "board.json";
-		FileReader fileReader = new FileReader(PATH + boardFilename);
+	private static List<Location> findLocations(JSONObject variableRoot) {
+		assert ValidateJsonFiles.validateConstantGameState(BOARD_PATH) :
+			"Board failed to validate against its schema.";
+		
+		FileReader fileReader;
+		try {
+			fileReader = new FileReader(BOARD_PATH);
+		} catch (FileNotFoundException e) {
+			throw new AssertionError(e);
+		}
+		
 		JSONParser parser = new JSONParser();
 		
-		JSONObject jsonBoard = (JSONObject) parser.parse(fileReader);
+		JSONObject constantRoot;
+		try {
+			constantRoot = (JSONObject) parser.parse(fileReader);
+		} catch (IOException | ParseException e) {
+			throw new AssertionError(e);
+		}
 		
 		List<Location> resultLocations = new ArrayList<Location>();
 		Set<Location> locationsSet = new HashSet<Location>();
 		
-		JSONArray locationsArray = (JSONArray) jsonBoard.get("locations");
+		JSONArray locationsArray = (JSONArray) constantRoot.get("locations");
 		
 		for (Object locationsArrayElement : locationsArray) {
 			JSONObject locationObject = (JSONObject) locationsArrayElement;
@@ -174,31 +199,33 @@ public final class GameStateLoader {
 					new Location(name, terrain, base, supply, invest);
 			boolean isLocationDuplicate = !locationsSet.add(location);
 			
-			if (isLocationDuplicate) {
-				throw new RuntimeException("Duplicate location encountered."
-						+ "Name: " + location.getName());
-			}
+			assert !isLocationDuplicate : "Duplicate location encountered."
+					+ "Name: " + location.getName();
 			
 			resultLocations.add(location);
 		}
+
+		loadLocationAdditions(variableRoot, resultLocations);
 		
-		JSONArray adjacenciesArray = (JSONArray) jsonBoard.get("adjacencies");
+		JSONArray adjacenciesArray = 
+				(JSONArray) constantRoot.get("adjacencies");
 		
 		for (Object adjacenciesArrayElement : adjacenciesArray) {
 			JSONArray adjacencyPair = (JSONArray) adjacenciesArrayElement;
 
 			int locationIndexA = ((Long) adjacencyPair.get(0)).intValue();
 			int locationIndexB = ((Long) adjacencyPair.get(1)).intValue();
+
+			assert locationIndexA >= 0 && 
+					locationIndexA < resultLocations.size() : 
+						"Location index out of bounds: " + locationIndexA;
+
+			assert locationIndexB >= 0 && 
+					locationIndexB < resultLocations.size() : 
+						"Location index out of bounds: " + locationIndexB;
 			
-			if (locationIndexA >= resultLocations.size() || 
-					locationIndexB >= resultLocations.size()) {
-				throw new RuntimeException("Location index out of bounds.");
-			}
-			
-			if (locationIndexA == locationIndexB) {
-				throw new RuntimeException("Location cannot be adjacent to "
-						+ "itself");
-			}
+			assert locationIndexA != locationIndexB : "Location cannot be "
+					+ "adjacent to itself: " + locationIndexA;
 
 			Location locationA = resultLocations.get(locationIndexA);
 			Location locationB = resultLocations.get(locationIndexB);
@@ -210,38 +237,6 @@ public final class GameStateLoader {
 		return resultLocations;
 	}
 	
-	/**
-	 * Returns the name of the configuration file for the given game type
-	 * @param gameType  the type of the game, not null
-	 * @return the name of the file with the configuration for the given game 
-	 * type
-	 */
-	private static String getGameTypeFilename(GameType gameType) {
-		assert(gameType != null);
-		
-		switch (gameType) {
-			case STANDARD_6 :
-				return "standardGame6.json";
-			default :
-				throw new IllegalStateException("Game type not in switch "
-						+ "statement: " + gameType);
-		}
-	}
-	
-	/**
-	 * Finds the set of valid numbers of players
-	 * @return the set of valid numbers of players, not null, no null elements
-	 */
-	private static Set<Integer> findValidNumPlayers(JSONObject root) {
-		JSONArray validNumPlayersArray = (JSONArray) root.get("validNumPlayers");
-		return new HashSet<>(validNumPlayersArray);
-	}
-	
-	/**
-	 * Finds the mapping of factions to player data
-	 * @return the mapping of factions to player data, not null, no null 
-	 * elements
-	 */
 	private static Map<Faction, Player> findFactionsToPlayers(JSONObject root, 
 			List<AbstractCombatCard> combatCards) {
 		Map<Faction, Player> result = new HashMap<>();
@@ -252,12 +247,8 @@ public final class GameStateLoader {
 		
 		return result;
 	}
-	
-	/**
-	 * Creates a player for the given faction
-	 * @param faction  the player's faction, not null 
-	 * @return the player with the given faction
-	 */
+
+	@SuppressWarnings("unchecked")
 	private static Player createPlayer(JSONObject root, 
 			List<AbstractCombatCard> combatCards, Faction faction) {
 		assert(faction != null);
@@ -284,26 +275,32 @@ public final class GameStateLoader {
 		return new Player(combatCardsInHand, units, cashInHand, cashPool);
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static List<Faction> findTurnOrder(JSONObject root) {
 		return (List<Faction>) root.get("turnOrder");
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static List<Faction> findTieBreakingOrder(JSONObject root) {
 		return (List<Faction>) root.get("tieBreakingOrder");
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static List<Faction> findSpecialTokenOrder(JSONObject root) {
 		return (List<Faction>) root.get("specialTokenOrder");
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static List<Integer> findSpecialTokensPerPosition(JSONObject root) {
 		return (List<Integer>) root.get("specialTokensPerPosition");
 	}       
 	        
+	@SuppressWarnings("unchecked")
 	private static Map<Faction, Integer> findFactionsToSupplies(JSONObject root) {
 		return (Map<Faction, Integer>) root.get("factionsToSupplies"); 
 	}       
 	        
+	@SuppressWarnings("unchecked")
 	private static Map<Faction, Integer> findFactionsToNumBases(JSONObject root) {
 		return (Map<Faction, Integer>) root.get("factionsToNumBases");
 	}       
@@ -325,7 +322,6 @@ public final class GameStateLoader {
 			JSONObject baseObject = (JSONObject) locationAddition.get("base");
 			String ownerString = (String) locationAddition.get("owner");
 			JSONArray unitsArray = (JSONArray) locationAddition.get("units");
-			String tokenString = (String) locationAddition.get("actionToken");
 			int targetLocationIndex = ((Long) locationAddition.get("targetLocation")).intValue();
 			
 			Location location = locations.get(targetLocationIndex);
@@ -337,11 +333,16 @@ public final class GameStateLoader {
 				base = new Base(location.getBaseStrength(), baseDefense);	
 			}
 			
-			Faction owner = ownerString == null ? null : Faction.valueOf(ownerString);
+			Faction owner = null;
+			
+			if (ownerString != null) {
+				Faction.valueOf(ownerString);
+			}
+			 
 			Collection<AbstractUnit> units = getUnits(unitsArray); 
-			AbstractActionToken actionToken = tokenString == null ? null : new AbstractActionToken(tokenString);
+			
 			Location modifiedLocation = 
-					new Location(location, base, units, owner, actionToken);
+					new Location(location, base, units, owner);
 			
 			locations.set(targetLocationIndex, modifiedLocation);
 		}
@@ -394,10 +395,12 @@ public final class GameStateLoader {
 		return (Boolean) root.get("hasSightPowerBeenUsed");
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static List<Long> findCardIndexes(JSONObject root, String key) {
 		return (List<Long>) root.get(key);
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static <T> List<T> findCards(JSONObject root, String key) {
 		return (List<T>) root.get(key);
 	}
@@ -408,7 +411,8 @@ public final class GameStateLoader {
 		if (units != null) {
 			for (Object element : units) {
 				String unitString = (String) element;
-				result.add((AbstractUnit) new AbstractUnit(unitString));
+				AbstractUnit unit = AbstractUnit.create(unitString);
+				result.add(unit);
 			}	
 		}
 		
