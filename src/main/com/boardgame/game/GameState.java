@@ -44,21 +44,25 @@ final class GameState {
 			Queue<AbstractThreatCard> threatCardsDiscard, 
 			List<AbstractCombatCard> combatCards,
 			boolean hasCombatBonusBeenUsed, boolean hasSightPowerBeenUsed) {
-		if (locations == null || factionsToPlayers == null || turnOrder == null || 
-				tieBreakingOrder == null || specialTokenOrder == null ||
-				specialTokensPerPosition == null || 
-				factionsToSupplies == null || factionsToNumBases == null ||
-				eventCards1Stack == null || eventCards1Discard == null || 
-				eventCards2Stack == null || eventCards2Discard == null || 
-				eventCards3Stack == null || eventCards3Discard == null || 
-				threatCardsStack == null || threatCardsDiscard == null || 
-				combatCards == null) {
-			throw new IllegalArgumentException("A parameter is null.");
-		}
-		
-		if (threatLevel < 0 || round < 0) {
-			throw new IllegalArgumentException("A parameter is negative.");
-		}
+		assert locations != null;
+		assert factionsToPlayers != null;
+		assert turnOrder != null;
+		assert tieBreakingOrder != null;
+		assert specialTokenOrder != null;
+		assert specialTokensPerPosition != null;
+		assert factionsToSupplies != null;
+		assert factionsToNumBases != null;
+		assert eventCards1Stack != null;
+		assert eventCards1Discard != null;
+		assert eventCards2Stack != null;
+		assert eventCards2Discard != null;
+		assert eventCards3Stack != null;
+		assert eventCards3Discard != null;
+		assert threatCardsStack != null;
+		assert threatCardsDiscard != null;
+		assert combatCards != null;
+		assert threatLevel >= 0;
+		assert round >= 0;
 		
 		this.locations = locations;
 		this.factionsToPlayers = factionsToPlayers;
@@ -83,8 +87,8 @@ final class GameState {
 		this.hasSightPowerBeenUsed = hasSightPowerBeenUsed;
 	}
 	
-	int findNumPlayers() {
-		return factionsToPlayers.values().size();
+	int getNumFactions() {
+		return factionsToPlayers.size();
 	}
 	
 	List<Location> getLocations() {

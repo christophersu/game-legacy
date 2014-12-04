@@ -8,7 +8,6 @@ import java.util.Set;
  *
  */
 public final class Game {
-	private final IntegersToObjects integersToObjects;
 	private final GameState gameState;
 	
 	/**
@@ -21,7 +20,6 @@ public final class Game {
 			throw new IllegalArgumentException("Game state was null.");
 		}
 		
-		this.integersToObjects = new IntegersToObjects(gameState);
 		this.gameState = gameState;
 	}
 	
