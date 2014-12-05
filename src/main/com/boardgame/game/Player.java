@@ -10,6 +10,8 @@ final class Player {
 	private final Set<AbstractCombatCard> combatCardsDiscard;
 	private final Collection<AbstractUnit> unitsInHand;
 	
+	private final Set<AbstractActionToken> tokens;
+	
 	private int cashInHand;
 	private int cashPool;
 	
@@ -18,6 +20,9 @@ final class Player {
 		this.combatCardsInHand = new HashSet<>(combatCards);
 		this.combatCardsDiscard = new HashSet<>();
 		this.unitsInHand = new HashSet<>(units);
+		
+		this.tokens = new HashSet<>();
+		
 		this.cashInHand = cashInHand;
 		this.cashPool = cashPool;
 		
@@ -132,7 +137,38 @@ final class Player {
 		
 		boolean result = unitsInHand.add(unit);
 		
-		assert(result);
+		assert result;
+		checkRep();
+	}
+	
+	void resetTokens(Set<AbstractActionToken> otherTokens) {
+		checkRep();
+		
+		tokens.clear();
+		tokens.addAll(otherTokens);
+		
+		checkRep();
+	}
+	
+	boolean removeToken(AbstractActionToken token) {
+		checkRep();
+		assert token != null;
+		
+		boolean result = tokens.remove(token);
+		
+		checkRep();
+		
+		return result;
+	}
+	
+	void addToken(AbstractActionToken token) {
+		checkRep();
+		assert token != null;
+		
+		boolean result = tokens.add(token);
+		
+		assert result;
+		
 		checkRep();
 	}
 	
@@ -170,6 +206,9 @@ final class Player {
 		assert combatCardsInHand != null : "Null combat cards in hand";
 		assert combatCardsDiscard != null : "Null combat cards discard";
 		assert unitsInHand != null : "Null units in hand";
+		
+		assert tokens != null : "Null tokens";
+		
 		assert cashInHand >= 0 : "Negative cash in hand";
 		assert cashPool >= 0 : "Negative cash pool";
 		
@@ -183,6 +222,10 @@ final class Player {
 		
 		for (AbstractUnit unit : unitsInHand) {
 			assert unit != null : "Null unit";
+		}
+		
+		for (AbstractActionToken token : tokens) {
+			assert token != null : "Null token";
 		}
 	}
 }

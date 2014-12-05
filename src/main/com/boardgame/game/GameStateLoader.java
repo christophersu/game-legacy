@@ -342,7 +342,7 @@ public final class GameStateLoader {
 			Collection<AbstractUnit> units = getUnits(unitsArray); 
 			
 			Location modifiedLocation = 
-					new Location(location, base, units, owner);
+					new Location(location, base, new HashSet<>(), units, owner);
 			
 			locations.set(targetLocationIndex, modifiedLocation);
 		}

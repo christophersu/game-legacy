@@ -1,7 +1,7 @@
 package com.boardgame.game;
 
 final class AssistToken extends CombatToken {
-	AssistToken(boolean isSpecial, int strength) {
-		super(isSpecial, strength);
+	AssistToken(boolean isSpecial, TokenString tokenString, int strength) {
+		super(isSpecial, tokenString, strength);
 	}
 }

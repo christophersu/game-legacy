@@ -1,7 +1,8 @@
 package com.boardgame.game;
 
 final class BlitzToken extends AbstractActionToken {
-	BlitzToken(boolean isSpecial) {
-		super(isSpecial);
+	BlitzToken(boolean isSpecial, TokenString tokenString) {
+		super(isSpecial, tokenString);
 	}
 }
+

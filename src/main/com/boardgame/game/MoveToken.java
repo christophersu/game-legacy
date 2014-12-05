@@ -1,7 +1,7 @@
 package com.boardgame.game;
 
 final class MoveToken extends CombatToken {
-	MoveToken(boolean isSpecial, int strength) {
-		super(isSpecial, strength);
+	MoveToken(boolean isSpecial, TokenString tokenString, int strength) {
+		super(isSpecial, tokenString, strength);
 	}
 }

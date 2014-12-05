@@ -125,6 +125,9 @@
 						},
 						"additionalItems" : false
 					},
+					"token" : {
+						"enum" : ["BAD_MOVE", "NORMAL_MOVE", "MOVE_S", "INVEST", "INVEST_S", "BLITZ", "BLITZ_S", "DEFENSE", "DEFENSE_S", "ASSIST", "ASSIST_S"]
+					},
 					"targetLocation" : {
 						"type" : "integer",
 						"minimum" : 0

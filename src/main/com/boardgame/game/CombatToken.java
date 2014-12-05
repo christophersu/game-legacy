@@ -1,7 +1,11 @@
 package com.boardgame.game;
 
 class CombatToken extends AbstractActionToken {
-	CombatToken(boolean isSpecial, int strength) {
-		super(isSpecial);
+	protected int strength;
+	
+	CombatToken(boolean isSpecial, TokenString tokenString, int strength) {
+		super(isSpecial, tokenString);
+		
+		this.strength = strength;
 	}
 }

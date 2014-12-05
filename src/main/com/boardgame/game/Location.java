@@ -30,7 +30,7 @@ final class Location {
 	}
 	
 	private Location(String name, Terrain terrain, Base base, int supply,
-			int invest, HashSet<Location> adjacentLocations, 
+			int invest, Set<Location> adjacentLocations, 
 			Collection<AbstractUnit> units, Faction owner) {
 		this.name = name;
 		this.terrain = terrain;
@@ -51,10 +51,10 @@ final class Location {
 		checkRep();
 	}
 	
-	Location(Location location, Base base, Collection<AbstractUnit> units, 
-			Faction owner) {
+	Location(Location location, Base base, Set<Location> adjacentLocations, 
+			Collection<AbstractUnit> units, Faction owner) {
 		this(location.name, location.terrain, base, location.supply,
-				location.invest, new HashSet<>(), units, owner);
+				location.invest, adjacentLocations, units, owner);
 		checkRep();
 	}
 	
