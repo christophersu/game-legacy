@@ -3,6 +3,8 @@ package com.boardgame.game;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -249,7 +251,7 @@ public final class Game {
 					+ "power state");
 		}
 		
-		if (gameState.getFirstInSpecialTokenOrder() != faction ||
+		if (gameState.getFactionInSpecialTokenOrderPosition(0) != faction ||
 				gameState.getHasSightPowerBeenUsed()) {
 			throw new IllegalStateException("Faction cannot use power");
 		}
@@ -270,7 +272,7 @@ public final class Game {
 		return switchResult;
 	}
 	
-	public Player getCurrentPlayer() {
+	public Faction getCurrentFaction() {
 		throw new UnsupportedOperationException();
 	}
 	

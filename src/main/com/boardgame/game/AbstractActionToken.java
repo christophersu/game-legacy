@@ -1,8 +1,9 @@
 package com.boardgame.game;
 
-abstract class AbstractActionToken {
+abstract class AbstractActionToken implements Comparable<AbstractActionToken> {
 	protected final boolean isSpecial;
 	private final TokenString tokenString;
+	private final int priority;
 	
 	enum TokenString {
 		BLANK,
@@ -23,13 +24,23 @@ abstract class AbstractActionToken {
 		ASSIST_S
 	}
 	
-	AbstractActionToken(boolean isSpecial, TokenString tokenString) {
+	AbstractActionToken(boolean isSpecial, TokenString tokenString, 
+			int priority) {
+		assert tokenString != null;
+		assert priority >= 0;
+		
 		this.isSpecial = isSpecial;
 		this.tokenString = tokenString;
+		this.priority = priority;
 	}
 	
 	@Override
 	public String toString() {
 		return tokenString.toString();
+	}
+	
+	@Override
+	public int compareTo(AbstractActionToken other) {
+		return this.priority - other.priority;
 	}
 }

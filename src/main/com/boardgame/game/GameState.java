@@ -123,16 +123,19 @@ final class GameState {
 		return specialTokenOrder;
 	}
 	
-	Faction getFirstInSpecialTokenOrder() {
-		return specialTokenOrder.get(0);
+	Faction getFactionInSpecialTokenOrderPosition(int position) {
+		assert position >= 0 && position < specialTokenOrder.size();
+		return specialTokenOrder.get(position);
 	}
 	
-	Faction getFirstInTurnOrder() {
-		return specialTokenOrder.get(0);
+	Faction getFactionInTurnOrderPosition(int position) {
+		assert position >= 0 && position < specialTokenOrder.size();
+		return turnOrder.get(position);
 	}
 	
-	Faction getFirstInTieBreakingOrder() {
-		return tieBreakingOrder.get(0);
+	Faction getFactionInTieBreakingOrderPosition(int position) {
+		assert position >= 0 && position < specialTokenOrder.size();
+		return tieBreakingOrder.get(position);
 	}
 
 	List<Integer> getSpecialTokensPerPosition() {
