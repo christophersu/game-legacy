@@ -1,11 +1,9 @@
 package com.boardgame.game;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
-import com.boardgame.game.AbstractActionToken.TokenString;
-import com.boardgame.game.AbstractUnit.UnitString;
 
 /**
  * A game object that holds the state of the game and has methods that can 
@@ -15,7 +13,6 @@ import com.boardgame.game.AbstractUnit.UnitString;
 public final class Game {
 	private final GameState gameState;
 	private final IntegersToObjects integersToObjects;
-	private final List<AbstractActionToken> allActionTokens;
 	
 	private RoundState roundState;
 	
@@ -50,30 +47,7 @@ public final class Game {
 		this.gameState = gameState;
 		this.integersToObjects = new IntegersToObjects();
 		
-		this.allActionTokens = findActionTokens();
 		this.roundState = RoundState.INITIALIZATION;
-	}
-	
-	private static List<AbstractActionToken> findActionTokens() {
-		List<AbstractActionToken> actionTokens = new ArrayList<>();
-
-		actionTokens.add(new MoveToken(false, TokenString.BAD_MOVE, -1));
-		actionTokens.add(new MoveToken(false, TokenString.NORMAL_MOVE, 0));
-		actionTokens.add(new MoveToken(true, TokenString.MOVE_S, 1));
-		actionTokens.add(new InvestToken(false, TokenString.INVEST_A));
-		actionTokens.add(new InvestToken(false, TokenString.INVEST_B));
-		actionTokens.add(new InvestToken(true, TokenString.INVEST_S));
-		actionTokens.add(new BlitzToken(false, TokenString.BLITZ_A));
-		actionTokens.add(new BlitzToken(false, TokenString.BLITZ_B));
-		actionTokens.add(new BlitzToken(true, TokenString.BLITZ_S));
-		actionTokens.add(new DefenseToken(false, TokenString.DEFENSE_A, 1));
-		actionTokens.add(new DefenseToken(false, TokenString.DEFENSE_B, 1));
-		actionTokens.add(new DefenseToken(true, TokenString.DEFENSE_S, 2));
-		actionTokens.add(new AssistToken(false, TokenString.ASSIST_A, 1));
-		actionTokens.add(new AssistToken(false, TokenString.ASSIST_B, 1));
-		actionTokens.add(new AssistToken(true, TokenString.ASSIST_S, 2));
-		
-		return actionTokens;
 	}
 	
 	/**
@@ -241,7 +215,6 @@ public final class Game {
 		
 		IntegersToObjects() {
 			assert gameState != null;
-			assert allActionTokens != null;
 			
 			integersToFactions = new OneToOneMap<>();
 			integersToLocations = makeLocationsMap();
@@ -254,13 +227,15 @@ public final class Game {
 		}
 		
 		OneToOneMap<Integer, AbstractActionToken> makeTokensMap() {
-			return listToMap(allActionTokens);
+			Collection<AbstractActionToken> allTokens =
+					gameState.getTokenStringsToTokens().values();
+			return listToMap(new ArrayList<>(allTokens));
 		}
 		
 		OneToOneMap<Integer, AbstractUnit> makeUnitsMap() {
-			OneToOneMap<UnitString, AbstractUnit> unitStringsToUnits = 
-					gameState.getUnitStringsToUnits();
-			return listToMap(new ArrayList<>(unitStringsToUnits.values()));
+			Collection<AbstractUnit> allUnits = 
+					gameState.getUnitStringsToUnits().values();
+			return listToMap(new ArrayList<>(allUnits));
 		}
 		
 		private <E> OneToOneMap<Integer, E> listToMap(List<E> list) {

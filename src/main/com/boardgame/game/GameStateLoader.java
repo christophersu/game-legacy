@@ -17,6 +17,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.boardgame.game.AbstractActionToken.TokenString;
 import com.boardgame.game.AbstractUnit.UnitString;
 import com.boardgame.game.Location.Terrain;
 
@@ -28,14 +29,32 @@ public final class GameStateLoader {
 	private static final String BOARD_PATH = "res/board.json";
 	private static final String STANDARD_6_PATH = "res/standardGame6.json";
 	
-	private static final OneToOneMap<UnitString, AbstractUnit> unitStringsToUnits = 
-			new OneToOneMap<UnitString, AbstractUnit>();
+	private static final Map<UnitString, AbstractUnit> unitStringsToUnits = 
+			new HashMap<UnitString, AbstractUnit>();
+	private static final Map<TokenString, AbstractActionToken> tokenStringsToTokens = 
+			new HashMap<TokenString, AbstractActionToken>();
 	
 	static {
 		unitStringsToUnits.put(UnitString.INFANTRY, new InfantryUnit());
 		unitStringsToUnits.put(UnitString.ADVANCED, new AdvancedUnit());
 		unitStringsToUnits.put(UnitString.SHIP, new ShipUnit());
 		unitStringsToUnits.put(UnitString.BASE_ASSAULT, new BaseAssaultUnit());
+		
+		tokenStringsToTokens.put(TokenString.BAD_MOVE, new MoveToken(false, TokenString.BAD_MOVE, -1));
+		tokenStringsToTokens.put(TokenString.NORMAL_MOVE, new MoveToken(false, TokenString.NORMAL_MOVE, 0));
+		tokenStringsToTokens.put(TokenString.MOVE_S, new MoveToken(true, TokenString.MOVE_S, 1));
+		tokenStringsToTokens.put(TokenString.INVEST_A, new InvestToken(false, TokenString.INVEST_A));
+		tokenStringsToTokens.put(TokenString.INVEST_B, new InvestToken(false, TokenString.INVEST_B));
+		tokenStringsToTokens.put(TokenString.INVEST_S, new InvestToken(true, TokenString.INVEST_S));
+		tokenStringsToTokens.put(TokenString.BLITZ_A, new BlitzToken(false, TokenString.BLITZ_A));
+		tokenStringsToTokens.put(TokenString.BLITZ_B, new BlitzToken(false, TokenString.BLITZ_B));
+		tokenStringsToTokens.put(TokenString.BLITZ_S, new BlitzToken(true, TokenString.BLITZ_S));
+		tokenStringsToTokens.put(TokenString.DEFENSE_A, new DefenseToken(false, TokenString.DEFENSE_A, 1));
+		tokenStringsToTokens.put(TokenString.DEFENSE_B, new DefenseToken(false, TokenString.DEFENSE_B, 1));
+		tokenStringsToTokens.put(TokenString.DEFENSE_S, new DefenseToken(true, TokenString.DEFENSE_S, 2));
+		tokenStringsToTokens.put(TokenString.ASSIST_A, new AssistToken(false, TokenString.ASSIST_A, 1));
+		tokenStringsToTokens.put(TokenString.ASSIST_B, new AssistToken(false, TokenString.ASSIST_B, 1));
+		tokenStringsToTokens.put(TokenString.ASSIST_S, new AssistToken(true, TokenString.ASSIST_S, 2));
 	}
 	
 	enum GameType {
@@ -442,7 +461,7 @@ public final class GameStateLoader {
 		if (units != null) {
 			for (Object element : units) {
 				UnitString unitString = UnitString.valueOf((String) element);
-				AbstractUnit unit = unitStringsToUnits.getValue(unitString);
+				AbstractUnit unit = unitStringsToUnits.get(unitString);
 				result.add(unit);
 			}	
 		}
