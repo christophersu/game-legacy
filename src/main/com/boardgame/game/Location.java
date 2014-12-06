@@ -114,8 +114,9 @@ final class Location {
 
 	/**
 	 * @throws IllegalStateException if there is no owner
+	 * @return whether the token was placed
 	 */
-	void placeActionToken(AbstractActionToken actionToken) {
+	boolean placeActionToken(AbstractActionToken actionToken) {
 		checkRep();
 
 		assert actionToken != null : "Null token";
@@ -124,8 +125,15 @@ final class Location {
 			throw new IllegalStateException("No owner.");
 		}
 		
-		this.actionToken = actionToken;
+		boolean hasToken = this.actionToken != null;
+		
+		if (!hasToken) {
+			this.actionToken = actionToken;	
+		}
+		
 		checkRep();
+		
+		return !hasToken;
 	}
 	
 	/**
@@ -159,9 +167,13 @@ final class Location {
 		return actionToken;
 	}
 	
-	void removeActionToken() {
+	AbstractActionToken removeActionToken() {
 		checkRep();
+		
+		AbstractActionToken previousToken = actionToken;
 		actionToken = null;
+		
+		return previousToken;
 	}
 	
 	@Override

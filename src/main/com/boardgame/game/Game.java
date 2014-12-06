@@ -86,12 +86,8 @@ public final class Game {
 			throw new IllegalStateException("Too many players");
 		}
 		
-		boolean success = true;
-		
-		if (integersToFactions.containsValue(faction) &&
-				integersToFactions.getKey(faction) != playerId) {
-			success = false;
-		}
+		boolean success = !integersToFactions.containsValue(faction) &&
+				integersToFactions.getKey(faction) == playerId;
 		
 		integersToObjects.integersToFactions.put(playerId, faction);
 		
@@ -107,21 +103,171 @@ public final class Game {
 			throw new IllegalStateException("Can't call after game start");
 		}
 		
+		int numPlayers = integersToObjects.integersToFactions.size();
+		int numExpected = gameState.getNumFactions();
+		
+		if (numPlayers < numExpected) {
+			throw new IllegalStateException("Not enough players");
+		}
+		
+		assert numPlayers == numExpected;
+		
 		roundState = roundState.nextState;
 	}
 	
-	public void placeToken(Faction faction, AbstractActionToken token, 
+	/**
+	 * Places the given faction's given token at the given location
+	 * @param faction  the faction whose token will be placed, not null
+	 * @param token  the token that will be placed, not null
+	 * @param location  the location at which the token will be placed, not null
+	 * @throws IllegalArgumentException if faction is null
+	 * @throws IllegalArgumentException if token is null
+	 * @throws IllegalArgumentException if location is null
+	 * @throws IllegalStateException if not in the token placing state
+	 * @throws IllegalStateException if faction is not the owner of location
+	 * @throws IllegalStateException if faction cannot place token
+	 * @return whether or not the token was placed
+	 */
+	public boolean placeToken(Faction faction, AbstractActionToken token, 
 			Location location) {
-		throw new UnsupportedOperationException();
+		if (roundState != RoundState.PLAN_PLACE_TOKENS) {
+			throw new IllegalStateException("Can't call when not placing "
+					+ "tokens");
+		}
+		
+		return placeTokenHelper(faction, token, location);
 	}
 	
-	public void removeToken(Faction faction, Location location) {
-		throw new UnsupportedOperationException();
+	private boolean placeTokenHelper(Faction faction, AbstractActionToken token, 
+			Location location) {
+		if (faction == null) {
+			throw new IllegalArgumentException("Null faction");
+		}
+		
+		if (token == null) {
+			throw new IllegalArgumentException("Null token");
+		}
+		
+		if (location == null) {
+			throw new IllegalArgumentException("Null location");
+		}
+		
+		if (location.getOwner() != faction) {
+			throw new IllegalStateException("Faction does not own location");
+		}
+		
+		Player player = gameState.getFactionsToPlayers().get(faction);
+		
+		if (!player.hasToken(token)) {
+			throw new IllegalStateException("Faction does not have token");
+		}
+		
+		if (token.isSpecial && player.getNumSpecialTokensUsed() + 1 == 
+				gameState.getNumSpecialTokensForFaction(faction)) {
+			throw new IllegalStateException("Can't use more special tokens");
+		}
+		
+		assert player.getNumSpecialTokensUsed() + 1 <= 
+				gameState.getNumSpecialTokensForFaction(faction);
+
+		boolean wasTokenPlaced = location.placeActionToken(token);
+		
+		if (!wasTokenPlaced) {
+			boolean removeResult = player.useToken(token);
+			assert removeResult;
+		}
+		
+		return wasTokenPlaced;
 	}
 	
-	public void switchToken(Faction faction, Location location, 
-			AbstractActionToken nextToken) {
-		throw new UnsupportedOperationException();
+	/**
+	 * Removes the given faction's  token from the given location if one is 
+	 * there
+	 * @param faction  the faction whose token will be removed, not null
+	 * @param location  the location where the token will be removed, not null
+	 * @throws IllegalArgumentException if faction is null
+	 * @throws IllegalArgumentException if location is null
+	 * @throws IllegalStateException if not in the token placing state
+	 * @throws IllegalStateException if faction is not the owner of location
+	 * @return whether or not a token was removed
+	 */
+	public boolean removeToken(Faction faction, Location location) {
+		if (roundState != RoundState.PLAN_PLACE_TOKENS) {
+			throw new IllegalStateException("Can't call when not placing "
+					+ "tokens");
+		}
+		
+		return removeTokenHelper(faction, location);
+	}
+	
+	private boolean removeTokenHelper(Faction faction, Location location) {
+		if (faction == null) {
+			throw new IllegalArgumentException("Faction was null");
+		}
+		
+		if (location == null) {
+			throw new IllegalArgumentException("Location was null");
+		}
+		
+		if (location.getOwner() != faction) {
+			throw new IllegalStateException("Faction does not own location");
+		}
+		
+		Player player = gameState.getFactionsToPlayers().get(faction);
+
+		AbstractActionToken removedToken = location.removeActionToken();
+		
+		boolean wasTokenRemoved = false;
+		
+		if (removedToken != null) {
+			wasTokenRemoved = true;
+			player.unUseToken(removedToken);
+		}
+		
+		return wasTokenRemoved;
+	}
+	
+	/**
+	 * Switches the given faction's token at the given location for the given 
+	 * token
+	 * @param faction  the faction whose tokens will be switched, not null
+	 * @param nextToken  the token to be placed, not null
+	 * @param location  the location where the switch will happen, not null
+	 * @throws IllegalArgumentException if faction is null
+	 * @throws IllegalArgumentException if nextToken is null
+	 * @throws IllegalArgumentException if location is null
+	 * @throws IllegalStateException if not in the sight power state
+	 * @throws IllegalStateException if faction is not the owner of location
+	 * @throws IllegalStateException if faction cannot place token
+	 * @throws IllegalStateException if faction is not allowed to switch
+	 * @return whether the switch occurred
+	 */
+	public boolean switchToken(Faction faction, AbstractActionToken nextToken,
+			Location location) {
+		if (roundState != RoundState.PLAN_SIGHT_POWER) {
+			throw new IllegalStateException("Can't call when not in sight "
+					+ "power state");
+		}
+		
+		if (gameState.getFirstInSpecialTokenOrder() != faction ||
+				gameState.getHasSightPowerBeenUsed()) {
+			throw new IllegalStateException("Faction cannot use power");
+		}
+		
+		boolean switchResult = false;
+		
+		boolean removeResult = removeTokenHelper(faction, location);
+		
+		if (removeResult) {
+			switchResult = placeTokenHelper(faction, nextToken, location);
+			assert switchResult;
+		}
+		
+		if (switchResult) {
+			gameState.setHasSightPowerBeenUsed(true);
+		}
+		
+		return switchResult;
 	}
 	
 	public Player getCurrentPlayer() {

@@ -27,10 +27,10 @@ final class GameState {
 	private final Queue<AbstractThreatCard> threatCardsStack;
 	private final Queue<AbstractThreatCard> threatCardsDiscard;
 	private final List<AbstractCombatCard> combatCards;
-	private final boolean hasCombatBonusBeenUsed;
-	private final boolean hasSightPowerBeenUsed;
+	private boolean hasCombatBonusBeenUsed;
+	private boolean hasSightPowerBeenUsed;
 	private final Map<UnitString, AbstractUnit> unitStringsToUnits;
-	private Map<TokenString, AbstractActionToken> tokenStringsToTokens;
+	private final Map<TokenString, AbstractActionToken> tokenStringsToTokens; 
 	
 	private GameState(List<Location> locations, 
 			Map<Faction, Player> factionsToPlayers, List<Faction> turnOrder, 
@@ -72,7 +72,6 @@ final class GameState {
 		assert round >= 0;
 		assert unitStringsToUnits != null;
 		assert tokenStringsToTokens != null;
-		
 		
 		this.locations = locations;
 		this.factionsToPlayers = factionsToPlayers;
@@ -122,6 +121,18 @@ final class GameState {
 
 	List<Faction> getSpecialTokenOrder() {
 		return specialTokenOrder;
+	}
+	
+	Faction getFirstInSpecialTokenOrder() {
+		return specialTokenOrder.get(0);
+	}
+	
+	Faction getFirstInTurnOrder() {
+		return specialTokenOrder.get(0);
+	}
+	
+	Faction getFirstInTieBreakingOrder() {
+		return tieBreakingOrder.get(0);
 	}
 
 	List<Integer> getSpecialTokensPerPosition() {
@@ -180,12 +191,16 @@ final class GameState {
 		return combatCards;
 	}
 
-	boolean hasCombatBonusBeenUsed() {
+	boolean getHasCombatBonusBeenUsed() {
 		return hasCombatBonusBeenUsed;
 	}
 
-	boolean hasSightPowerBeenUsed() {
+	boolean getHasSightPowerBeenUsed() {
 		return hasSightPowerBeenUsed;
+	}
+	
+	void setHasSightPowerBeenUsed(boolean hasSightPowerBeenUsed) {
+		this.hasSightPowerBeenUsed = hasSightPowerBeenUsed;
 	}
 	
 	Map<UnitString, AbstractUnit> getUnitStringsToUnits() {
@@ -194,6 +209,13 @@ final class GameState {
 	
 	Map<TokenString, AbstractActionToken> getTokenStringsToTokens() {
 		return tokenStringsToTokens;
+	}
+	
+	int getNumSpecialTokensForFaction(Faction faction) {
+		assert faction != null;
+		
+		int specialTokenPosition = specialTokenOrder.indexOf(faction);
+		return specialTokensPerPosition.get(specialTokenPosition);
 	}
 	
 	static class Builder {
