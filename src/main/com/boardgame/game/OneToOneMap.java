@@ -2,6 +2,7 @@ package com.boardgame.game;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 final class OneToOneMap<K, V> {
 	private Map<K, V> keyToValue;
@@ -36,5 +37,9 @@ final class OneToOneMap<K, V> {
 	int size() {
 		assert keyToValue.size() == valueToKey.size();
 		return keyToValue.size();
+	}
+
+	Set<V> values() {
+		return valueToKey.keySet();
 	}
 }

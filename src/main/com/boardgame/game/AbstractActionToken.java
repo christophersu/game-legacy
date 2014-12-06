@@ -1,20 +1,25 @@
 package com.boardgame.game;
 
-class AbstractActionToken {
+abstract class AbstractActionToken {
 	protected final boolean isSpecial;
 	private final TokenString tokenString;
 	
 	enum TokenString {
+		BLANK,
 		BAD_MOVE, 
 		NORMAL_MOVE, 
 		MOVE_S, 
-		INVEST, 
+		INVEST_A, 
+		INVEST_B, 
 		INVEST_S, 
-		BLITZ, 
+		BLITZ_A,  
+		BLITZ_B, 
 		BLITZ_S, 
-		DEFENSE, 
+		DEFENSE_A, 
+		DEFENSE_B, 
 		DEFENSE_S, 
-		ASSIST, 
+		ASSIST_A,  
+		ASSIST_B, 
 		ASSIST_S
 	}
 	

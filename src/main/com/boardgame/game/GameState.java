@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import com.boardgame.game.AbstractUnit.UnitString;
+
 final class GameState {
 	private final List<Location> locations;
 	private final Map<Faction, Player> factionsToPlayers;
@@ -26,6 +28,7 @@ final class GameState {
 	private final List<AbstractCombatCard> combatCards;
 	private final boolean hasCombatBonusBeenUsed;
 	private final boolean hasSightPowerBeenUsed;
+	private final OneToOneMap<UnitString, AbstractUnit> unitStringsToUnits;
 	
 	private GameState(List<Location> locations, 
 			Map<Faction, Player> factionsToPlayers, List<Faction> turnOrder, 
@@ -43,7 +46,8 @@ final class GameState {
 			Queue<AbstractThreatCard> threatCardsStack,
 			Queue<AbstractThreatCard> threatCardsDiscard, 
 			List<AbstractCombatCard> combatCards,
-			boolean hasCombatBonusBeenUsed, boolean hasSightPowerBeenUsed) {
+			boolean hasCombatBonusBeenUsed, boolean hasSightPowerBeenUsed,
+			OneToOneMap<UnitString, AbstractUnit> unitStringsToUnits) {
 		assert locations != null;
 		assert factionsToPlayers != null;
 		assert turnOrder != null;
@@ -63,6 +67,7 @@ final class GameState {
 		assert combatCards != null;
 		assert threatLevel >= 0;
 		assert round >= 0;
+		assert unitStringsToUnits != null;
 		
 		this.locations = locations;
 		this.factionsToPlayers = factionsToPlayers;
@@ -85,6 +90,8 @@ final class GameState {
 		this.combatCards = combatCards;
 		this.hasCombatBonusBeenUsed = hasCombatBonusBeenUsed;
 		this.hasSightPowerBeenUsed = hasSightPowerBeenUsed;
+		
+		this.unitStringsToUnits = unitStringsToUnits;
 	}
 	
 	int getNumFactions() {
@@ -175,6 +182,10 @@ final class GameState {
 		return hasSightPowerBeenUsed;
 	}
 	
+	OneToOneMap<UnitString, AbstractUnit> getUnitStringsToUnits() {
+		return unitStringsToUnits;
+	}
+	
 	static class Builder {
 		private List<Location> locations;
 		private Map<Faction, Player> factionsToPlayers;
@@ -197,6 +208,7 @@ final class GameState {
 		private List<AbstractCombatCard> combatCards;
 		private boolean hasCombatBonusBeenUsed;
 		private boolean hasSightPowerBeenUsed;
+		private OneToOneMap<UnitString, AbstractUnit> unitStringsToUnits;
 		
 		Builder() {
 			
@@ -307,6 +319,11 @@ final class GameState {
 			return this;
 		}
 		
+		Builder setUnitStringsToUnits(OneToOneMap<UnitString, AbstractUnit> unitStringsToUnits) {
+			this.unitStringsToUnits = unitStringsToUnits;
+			return this;
+		}
+		
 		GameState build() {
 			return new GameState(locations, factionsToPlayers, turnOrder, 
 					tieBreakingOrder, specialTokenOrder, specialTokensPerPosition, 
@@ -314,7 +331,8 @@ final class GameState {
 					eventCards1Stack, eventCards1Discard, eventCards2Stack,
 					eventCards2Discard, eventCards3Stack, eventCards3Discard, 
 					threatCardsStack, threatCardsDiscard, combatCards,
-					hasCombatBonusBeenUsed, hasSightPowerBeenUsed);
+					hasCombatBonusBeenUsed, hasSightPowerBeenUsed, 
+					unitStringsToUnits);
 		}
 	}
 }

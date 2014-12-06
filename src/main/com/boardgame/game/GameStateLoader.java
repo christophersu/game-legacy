@@ -17,6 +17,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.boardgame.game.AbstractUnit.UnitString;
 import com.boardgame.game.Location.Terrain;
 
 /**
@@ -26,6 +27,16 @@ import com.boardgame.game.Location.Terrain;
 public final class GameStateLoader {
 	private static final String BOARD_PATH = "res/board.json";
 	private static final String STANDARD_6_PATH = "res/standardGame6.json";
+	
+	private static final OneToOneMap<UnitString, AbstractUnit> unitStringsToUnits = 
+			new OneToOneMap<UnitString, AbstractUnit>();
+	
+	static {
+		unitStringsToUnits.put(UnitString.INFANTRY, new InfantryUnit());
+		unitStringsToUnits.put(UnitString.ADVANCED, new AdvancedUnit());
+		unitStringsToUnits.put(UnitString.SHIP, new ShipUnit());
+		unitStringsToUnits.put(UnitString.BASE_ASSAULT, new BaseAssaultUnit());
+	}
 	
 	enum GameType {
 		STANDARD_6
@@ -135,7 +146,8 @@ public final class GameStateLoader {
 		gameStateBuilder.setHasCombatBonusBeenUsed(findHasCombatBonusBeenUsed(root))
 			.setHasSightPowerBeenUsed(findHasSightPowerBeenUsed(root));
 		
-		gameStateBuilder.setLocations(findLocations(root));
+		gameStateBuilder.setLocations(findLocations(root))
+			.setUnitStringsToUnits(unitStringsToUnits);
 
 		return gameStateBuilder.build();
 	}
@@ -259,20 +271,36 @@ public final class GameStateLoader {
 				(JSONObject) root.get("factionsToPlayers");
 		JSONObject playerConf = (JSONObject) playersConf.get(factionKey);
 		
-		List<Long> combatCardsConf = 
+		List<Long> combatCardsInHandIndexes = 
 				(List<Long>) playerConf.get("combatCardsInHand");
 
+		List<Long> combatCardsDiscardIndexes = 
+				(List<Long>) playerConf.get("combatCardsDiscard");
+		
 		JSONArray unitsConf = (JSONArray) playerConf.get("units");
 		int cashInHand = ((Long) playerConf.get("cashInHand")).intValue();
 		int cashPool = ((Long) playerConf.get("cashPool")).intValue();
 		
 		List<AbstractCombatCard> combatCardsInHandList = 
-				buildSublist(combatCardsConf, combatCards);
+				buildSublist(combatCardsInHandIndexes, combatCards);
 		Set<AbstractCombatCard> combatCardsInHand = 
 				new HashSet<>(combatCardsInHandList);
+
+		Set<AbstractCombatCard> combatCardsDiscard = new HashSet<>();
+		
+		if (combatCardsDiscardIndexes != null) {
+			List<AbstractCombatCard> combatCardsDiscardList = 
+					buildSublist(combatCardsDiscardIndexes, combatCards);
+			combatCardsDiscard.addAll(combatCardsDiscardList);
+		}
+		
+		
 		Set<AbstractUnit> units = new HashSet<>(unitsConf);
 		
-		return new Player(combatCardsInHand, units, cashInHand, cashPool);
+
+		
+		return new Player(combatCardsInHand, combatCardsDiscard, units, 
+				cashInHand, cashPool);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -330,13 +358,16 @@ public final class GameStateLoader {
 			
 			if (baseObject != null) {
 				int baseDefense = ((Long) baseObject.get("defense")).intValue();
-				base = new Base(location.getBaseStrength(), baseDefense);	
+				boolean isDefenseActive = 
+						(Boolean) baseObject.get("isDefenseActive");
+				base = new Base(location.getBaseStrength(), baseDefense, 
+						isDefenseActive);	
 			}
 			
 			Faction owner = null;
 			
 			if (ownerString != null) {
-				Faction.valueOf(ownerString);
+				owner = Faction.valueOf(ownerString);
 			}
 			 
 			Collection<AbstractUnit> units = getUnits(unitsArray); 
@@ -410,8 +441,8 @@ public final class GameStateLoader {
 		
 		if (units != null) {
 			for (Object element : units) {
-				String unitString = (String) element;
-				AbstractUnit unit = AbstractUnit.create(unitString);
+				UnitString unitString = UnitString.valueOf((String) element);
+				AbstractUnit unit = unitStringsToUnits.getValue(unitString);
 				result.add(unit);
 			}	
 		}

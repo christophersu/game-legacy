@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.boardgame.game.AbstractActionToken.TokenString;
+import com.boardgame.game.AbstractUnit.UnitString;
 
 /**
  * A game object that holds the state of the game and has methods that can 
@@ -14,7 +15,27 @@ import com.boardgame.game.AbstractActionToken.TokenString;
 public final class Game {
 	private final GameState gameState;
 	private final IntegersToObjects integersToObjects;
-	private final List<AbstractActionToken> actionTokens; 
+	private final List<AbstractActionToken> allActionTokens;
+	
+	private RoundState roundState;
+	
+	enum RoundState {
+		ACTION_INVEST(null),
+		ACTION_MOVE(ACTION_INVEST),
+		ACTION_BLITZ(ACTION_MOVE),
+		PLAN_SIGHT_POWER(ACTION_BLITZ),
+		PLAN_REVEAL_TOKENS(PLAN_SIGHT_POWER),
+		PLAN_PLACE_TOKENS(PLAN_REVEAL_TOKENS),
+		EVENT_RESOLVE_CARDS(PLAN_PLACE_TOKENS),
+		EVENT_DISPLAY_CARDS(EVENT_RESOLVE_CARDS),
+		INITIALIZATION(PLAN_PLACE_TOKENS);
+		
+		RoundState nextState;
+		
+		RoundState(RoundState next) {
+			this.nextState = next;
+		}
+	};
 	
 	/**
 	 * Creates a new game with the given initial game state
@@ -27,9 +48,10 @@ public final class Game {
 		}
 		
 		this.gameState = gameState;
-		this.actionTokens = findActionTokens();
-		
 		this.integersToObjects = new IntegersToObjects();
+		
+		this.allActionTokens = findActionTokens();
+		this.roundState = RoundState.INITIALIZATION;
 	}
 	
 	private static List<AbstractActionToken> findActionTokens() {
@@ -38,17 +60,17 @@ public final class Game {
 		actionTokens.add(new MoveToken(false, TokenString.BAD_MOVE, -1));
 		actionTokens.add(new MoveToken(false, TokenString.NORMAL_MOVE, 0));
 		actionTokens.add(new MoveToken(true, TokenString.MOVE_S, 1));
-		actionTokens.add(new InvestToken(false, TokenString.INVEST));
-		actionTokens.add(new InvestToken(false, TokenString.INVEST));
+		actionTokens.add(new InvestToken(false, TokenString.INVEST_A));
+		actionTokens.add(new InvestToken(false, TokenString.INVEST_B));
 		actionTokens.add(new InvestToken(true, TokenString.INVEST_S));
-		actionTokens.add(new BlitzToken(false, TokenString.BLITZ));
-		actionTokens.add(new BlitzToken(false, TokenString.BLITZ));
+		actionTokens.add(new BlitzToken(false, TokenString.BLITZ_A));
+		actionTokens.add(new BlitzToken(false, TokenString.BLITZ_B));
 		actionTokens.add(new BlitzToken(true, TokenString.BLITZ_S));
-		actionTokens.add(new DefenseToken(false, TokenString.DEFENSE, 1));
-		actionTokens.add(new DefenseToken(false, TokenString.DEFENSE, 1));
+		actionTokens.add(new DefenseToken(false, TokenString.DEFENSE_A, 1));
+		actionTokens.add(new DefenseToken(false, TokenString.DEFENSE_B, 1));
 		actionTokens.add(new DefenseToken(true, TokenString.DEFENSE_S, 2));
-		actionTokens.add(new AssistToken(false, TokenString.ASSIST, 1));
-		actionTokens.add(new AssistToken(false, TokenString.ASSIST, 1));
+		actionTokens.add(new AssistToken(false, TokenString.ASSIST_A, 1));
+		actionTokens.add(new AssistToken(false, TokenString.ASSIST_B, 1));
 		actionTokens.add(new AssistToken(true, TokenString.ASSIST_S, 2));
 		
 		return actionTokens;
@@ -64,15 +86,21 @@ public final class Game {
 	 * @throws IllegalArgumentException if faction is null
 	 * @throws IllegalStateException if the game is full and playerId is not 
 	 * already in the game
+	 * @throws IllegalStateException if called after the game has started
 	 * @return true if the player was successfully associated with the given 
 	 * faction, false if another player is already associated with the faction
 	 */
 	public boolean putPlayer(int playerId, Faction faction) {
-		OneToOneMap<Integer, Faction> integersToFactions = 
-				integersToObjects.integersToFactions;
 		if (faction == null) {
 			throw new IllegalArgumentException("Null faction");
 		}
+		
+		if (roundState != RoundState.INITIALIZATION) {
+			throw new IllegalStateException("Can't call after game start");
+		}
+		
+		OneToOneMap<Integer, Faction> integersToFactions = 
+				integersToObjects.integersToFactions;
 		
 		int expectedPlayers = gameState.getNumFactions();
 		int currentPlayers = integersToFactions.size();
@@ -96,8 +124,16 @@ public final class Game {
 		return success;
 	}
 	
+	/**
+	 * Starts the game
+	 * @throws IllegalStateException if the game has already been started
+	 */
 	public void startGame() {
-		throw new UnsupportedOperationException();
+		if (roundState != RoundState.INITIALIZATION) {
+			throw new IllegalStateException("Can't call after game start");
+		}
+		
+		roundState = roundState.nextState;
 	}
 	
 	public void placeToken(Faction faction, AbstractActionToken token, 
@@ -198,17 +234,19 @@ public final class Game {
 	 *
 	 */
 	public class IntegersToObjects {
-		final OneToOneMap<Integer, Faction> integersToFactions;
-		final OneToOneMap<Integer, Location> integersToLocations;
-		final OneToOneMap<Integer, AbstractActionToken> integersToTokens;
+		private final OneToOneMap<Integer, Faction> integersToFactions;
+		private final OneToOneMap<Integer, Location> integersToLocations;
+		private final OneToOneMap<Integer, AbstractActionToken> integersToTokens;
+		private final OneToOneMap<Integer, AbstractUnit> integersToUnits;
 		
 		IntegersToObjects() {
 			assert gameState != null;
-			assert actionTokens != null;
+			assert allActionTokens != null;
 			
 			integersToFactions = new OneToOneMap<>();
 			integersToLocations = makeLocationsMap();
 			integersToTokens = makeTokensMap();
+			integersToUnits = makeUnitsMap();
 		}
 		
 		OneToOneMap<Integer, Location> makeLocationsMap() {
@@ -216,7 +254,13 @@ public final class Game {
 		}
 		
 		OneToOneMap<Integer, AbstractActionToken> makeTokensMap() {
-			return listToMap(actionTokens);
+			return listToMap(allActionTokens);
+		}
+		
+		OneToOneMap<Integer, AbstractUnit> makeUnitsMap() {
+			OneToOneMap<UnitString, AbstractUnit> unitStringsToUnits = 
+					gameState.getUnitStringsToUnits();
+			return listToMap(new ArrayList<>(unitStringsToUnits.values()));
 		}
 		
 		private <E> OneToOneMap<Integer, E> listToMap(List<E> list) {
@@ -302,6 +346,31 @@ public final class Game {
 			assert integersToTokens.containsValue(token);
 			
 			return integersToTokens.getKey(token);
+		}
+		
+		/**
+		 * Returns the unit associated with the given unit id
+		 * @param unitId  the unit id of a certain unit
+		 * @throw IllegalArgumentException if unitId is not a valid id
+		 * @return the unit associated with the given unit id
+		 */
+		public AbstractUnit getUnit(int unitId) {
+			if (!integersToUnits.containsKey(unitId)) {
+				throw new IllegalArgumentException("Invalid unit ID");
+			}
+			
+			AbstractUnit result = integersToUnits.getValue(unitId);
+			
+			assert result != null;
+			
+			return result;
+		}
+		
+		int getUnitId(AbstractUnit unit) {
+			assert unit != null;
+			assert integersToUnits.containsValue(unit);
+			
+			return integersToUnits.getKey(unit);
 		}
 	}
 }

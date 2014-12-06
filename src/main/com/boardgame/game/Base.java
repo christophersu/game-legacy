@@ -19,12 +19,12 @@ final class Base {
 		checkRep();
 	}
 
-	Base(Base base, int defense) {
+	Base(Base base, int defense, boolean isDefenseActive) {
 		assert base != null : "Null base";
 		
 		this.size = base.size;
 		this.defense = defense;
-		this.isDefenseActive = base.isDefenseActive;
+		this.isDefenseActive = isDefenseActive;
 		
 		checkRep();
 	}

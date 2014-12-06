@@ -15,11 +15,13 @@ final class Player {
 	private int cashInHand;
 	private int cashPool;
 	
-	Player(Set<AbstractCombatCard> combatCards, Collection<AbstractUnit> units, 
+	Player(Set<AbstractCombatCard> combatCardsInHand, 
+			Set<AbstractCombatCard> combatCardsDiscard, 
+			Collection<AbstractUnit> unitsInHand, 
 			int cashPool, int cashInHand) {
-		this.combatCardsInHand = new HashSet<>(combatCards);
-		this.combatCardsDiscard = new HashSet<>();
-		this.unitsInHand = new HashSet<>(units);
+		this.combatCardsInHand = new HashSet<>(combatCardsInHand);
+		this.combatCardsDiscard = new HashSet<>(combatCardsDiscard);
+		this.unitsInHand = new HashSet<>(unitsInHand);
 		
 		this.tokens = new HashSet<>();
 		

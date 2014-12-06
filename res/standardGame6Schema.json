@@ -28,11 +28,17 @@
 						"units" : {
 							"type" : "array",
 							"items" : {
-								"type" : "string",
-								"minLength" : 1
+								"enum" : ["INFANTRY", "ADVANCED", "SHIP", "BASE_ASSAULT"]
 							},
 							"additionalItems" : false
 						},
+						"tokens" : {
+							"type" : "array" {
+							"items : {
+								"enum" : ["BLANK", "BAD_MOVE", "NORMAL_MOVE", "MOVE_S", "INVEST", "INVEST_S", "BLITZ", "BLITZ_S", "DEFENSE", "DEFENSE_S", "ASSIST", "ASSIST_S"]
+							},
+							"additionalItems" : false
+						}
 						"cashInHand" : {
 							"type" : "integer",
 							"minimum" : 0
@@ -109,10 +115,13 @@
 							"defense" : {
 								"type" : "integer",
 								"minimum" : 1
+							},
+							"isDefenseActive" : {
+								"type" : "boolean"
 							}
 						},
 						"additionalProperties" : false,
-						"required" : ["defense"]
+						"required" : ["defense", "isDefenseActive"]
 					},
 					"owner" : {
 						"enum" : ["RED", "ORANGE", "YELLOW", "GREEN", "WHITE", "BLACK"]
@@ -120,13 +129,12 @@
 					"units" : {
 						"type" : "array",
 						"items" : {
-							"type" : "string",
-							"minLength" : 1
+							"enum" : ["INFANTRY", "ADVANCED", "SHIP", "BASE_ASSAULT"]
 						},
 						"additionalItems" : false
 					},
 					"token" : {
-						"enum" : ["BAD_MOVE", "NORMAL_MOVE", "MOVE_S", "INVEST", "INVEST_S", "BLITZ", "BLITZ_S", "DEFENSE", "DEFENSE_S", "ASSIST", "ASSIST_S"]
+						"enum" : ["BLANK", "BAD_MOVE", "NORMAL_MOVE", "MOVE_S", "INVEST", "INVEST_S", "BLITZ", "BLITZ_S", "DEFENSE", "DEFENSE_S", "ASSIST", "ASSIST_S"]
 					},
 					"targetLocation" : {
 						"type" : "integer",
@@ -135,6 +143,10 @@
 				},
 				"additionalProperties" : false,
 				"required" : ["targetLocation"]
+				"dependencies" : {
+					"units" : ["owner"],
+					"token" : ["owner"]
+				}
 			},
 			"additionalItems" : false
 		},
