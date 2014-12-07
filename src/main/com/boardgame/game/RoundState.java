@@ -3,9 +3,7 @@ package com.boardgame.game;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.boardgame.game.RoundPhase.ActionBlitz;
-import com.boardgame.game.RoundPhase.ActionInvest;
-import com.boardgame.game.RoundPhase.ActionMove;
+import com.boardgame.game.RoundPhase.ActionPhase;
 import com.boardgame.game.RoundPhase.EventDisplayCards;
 import com.boardgame.game.RoundPhase.EventResolveCards;
 import com.boardgame.game.RoundPhase.PlanPlaceTokens;
@@ -20,9 +18,7 @@ class RoundState {
 		roundPhases.add(new PlanPlaceTokens());
 		roundPhases.add(new PlanRevealTokens());
 		roundPhases.add(new PlanSightPower());
-		roundPhases.add(new ActionBlitz());
-		roundPhases.add(new ActionMove());
-		roundPhases.add(new ActionInvest());
+		roundPhases.add(new ActionPhase());
 		roundPhases.add(new EventDisplayCards());
 		roundPhases.add(new EventResolveCards());
 	}

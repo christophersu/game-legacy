@@ -61,21 +61,7 @@ abstract class RoundPhase {
 		}
 	}
 	
-	final static class ActionBlitz extends RoundPhase {
-		@Override
-		void prepare(Game game) {
-			throw new UnsupportedOperationException();
-		}
-	}
-	
-	final static class ActionMove extends RoundPhase {
-		@Override
-		void prepare(Game game) {
-			throw new UnsupportedOperationException();
-		}
-	}
-	
-	final static class ActionInvest extends RoundPhase {
+	final static class ActionPhase extends RoundPhase {
 		@Override
 		void prepare(Game game) {
 			throw new UnsupportedOperationException();
