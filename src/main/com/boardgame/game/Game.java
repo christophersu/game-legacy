@@ -3,8 +3,6 @@ package com.boardgame.game;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -18,24 +16,6 @@ public final class Game {
 	
 	private RoundState roundState;
 	
-	enum RoundState {
-		ACTION_INVEST(null),
-		ACTION_MOVE(ACTION_INVEST),
-		ACTION_BLITZ(ACTION_MOVE),
-		PLAN_SIGHT_POWER(ACTION_BLITZ),
-		PLAN_REVEAL_TOKENS(PLAN_SIGHT_POWER),
-		PLAN_PLACE_TOKENS(PLAN_REVEAL_TOKENS),
-		EVENT_RESOLVE_CARDS(PLAN_PLACE_TOKENS),
-		EVENT_DISPLAY_CARDS(EVENT_RESOLVE_CARDS),
-		INITIALIZATION(PLAN_PLACE_TOKENS);
-		
-		RoundState nextState;
-		
-		RoundState(RoundState next) {
-			this.nextState = next;
-		}
-	};
-	
 	/**
 	 * Creates a new game with the given initial game state
 	 * @param gameState  the initial game state, not null
@@ -47,9 +27,7 @@ public final class Game {
 		}
 		
 		this.gameState = gameState;
-		this.integersToObjects = new IntegersToObjects();
-		
-		this.roundState = RoundState.INITIALIZATION;
+		this.integersToObjects = new IntegersToObjects(); 
 	}
 	
 	/**
@@ -71,7 +49,7 @@ public final class Game {
 			throw new IllegalArgumentException("Null faction");
 		}
 		
-		if (roundState != RoundState.INITIALIZATION) {
+		if (hasStartedGame()) {
 			throw new IllegalStateException("Can't call after game start");
 		}
 		
@@ -101,7 +79,7 @@ public final class Game {
 	 * @throws IllegalStateException if the game has already been started
 	 */
 	public void startGame() {
-		if (roundState != RoundState.INITIALIZATION) {
+		if (hasStartedGame()) {
 			throw new IllegalStateException("Can't call after game start");
 		}
 		
@@ -114,7 +92,11 @@ public final class Game {
 		
 		assert numPlayers == numExpected;
 		
-		roundState = roundState.nextState;
+		roundState = new RoundState();
+	}
+	
+	private boolean hasStartedGame() {
+		return roundState != null;
 	}
 	
 	/**
@@ -132,7 +114,7 @@ public final class Game {
 	 */
 	public boolean placeToken(Faction faction, AbstractActionToken token, 
 			Location location) {
-		if (roundState != RoundState.PLAN_PLACE_TOKENS) {
+		if (!roundState.getRoundPhase().getCanPlaceToken()) {
 			throw new IllegalStateException("Can't call when not placing "
 					+ "tokens");
 		}
@@ -194,7 +176,7 @@ public final class Game {
 	 * @return whether or not a token was removed
 	 */
 	public boolean removeToken(Faction faction, Location location) {
-		if (roundState != RoundState.PLAN_PLACE_TOKENS) {
+		if (roundState.getRoundPhase().getCanPlaceToken()) {
 			throw new IllegalStateException("Can't call when not placing "
 					+ "tokens");
 		}
@@ -246,7 +228,7 @@ public final class Game {
 	 */
 	public boolean switchToken(Faction faction, AbstractActionToken nextToken,
 			Location location) {
-		if (roundState != RoundState.PLAN_SIGHT_POWER) {
+		if (!roundState.getRoundPhase().getCanSwitchToken()) {
 			throw new IllegalStateException("Can't call when not in sight "
 					+ "power state");
 		}
