@@ -3,6 +3,7 @@ package com.boardgame.game;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 import com.boardgame.game.AbstractActionToken.TokenString;
 import com.boardgame.game.AbstractUnit.UnitString;
@@ -103,6 +104,10 @@ final class GameState {
 		return factionsToPlayers.size();
 	}
 	
+	Set<Faction> getFactions() {
+		return factionsToPlayers.keySet();
+	}
+	
 	List<Location> getLocations() {
 		return locations;
 	}
@@ -136,6 +141,13 @@ final class GameState {
 	Faction getFactionInTieBreakingOrderPosition(int position) {
 		assert position >= 0 && position < specialTokenOrder.size();
 		return tieBreakingOrder.get(position);
+	}
+	
+	int getTurnOrderPosition(Faction faction) {
+		assert faction != null;
+		assert turnOrder.contains(faction);
+		
+		return turnOrder.indexOf(faction);
 	}
 
 	List<Integer> getSpecialTokensPerPosition() {

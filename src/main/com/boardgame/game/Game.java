@@ -2,7 +2,9 @@ package com.boardgame.game;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
@@ -15,6 +17,8 @@ import java.util.Set;
 public final class Game {
 	private final GameState gameState;
 	private final IntegersToObjects integersToObjects;
+	
+	private final Queue<ActionLocations> actionLocationsQueue;
 	
 	private RoundState roundState;
 	
@@ -30,6 +34,7 @@ public final class Game {
 		
 		this.gameState = gameState;
 		this.integersToObjects = new IntegersToObjects();
+		this.actionLocationsQueue = new PriorityQueue<>();
 	}
 	
 	/**
@@ -256,16 +261,34 @@ public final class Game {
 		return switchResult;
 	}
 	
+	/**
+	 * Returns the faction who may use tokens right now
+	 * @throws IllegalStateException if not in the token using state
+	 * @return the faction who may use tokens right now
+	 */
 	public Faction getCurrentFaction() {
-		throw new UnsupportedOperationException();
+		if (actionLocationsQueue.isEmpty()) {
+			throw new IllegalStateException("Not using tokens right now.");
+		}
+		
+		return actionLocationsQueue.peek().getFaction();
 	}
 	
-	public Set<AbstractActionToken> getTokenChoices(Faction faction) {
-		throw new UnsupportedOperationException();
+	/**
+	 * Returns the set of locations whose tokens may be used
+	 * @throws IllegalStateException if not in the token using state
+	 * @return the set of locations whose tokens may be used
+	 */
+	public Set<Location> getActionLocations() {
+		if (actionLocationsQueue.isEmpty()) {
+			throw new IllegalStateException("Not using tokens right now.");
+		}
+		
+		return actionLocationsQueue.peek().getLocations();
 	}
 	
 	public Set<Location> getValidLocationTargets(Faction faction, 
-			AbstractActionToken token) {
+			Location sourceLocation) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -478,6 +501,50 @@ public final class Game {
 			assert integersToUnits.containsValue(unit);
 			
 			return integersToUnits.getKey(unit);
+		}
+	}
+
+	public void buildActionLocationsQueue() {
+		assert actionLocationsQueue.isEmpty();
+		
+		Map<Faction, Map<Integer, ActionLocations>> 
+			factionsToTokenPrioritiesToActionLocations = new HashMap<>();
+		
+		for (Faction faction : gameState.getFactions()) {
+			factionsToTokenPrioritiesToActionLocations.put(faction, new HashMap<>());
+		}
+		
+		for (Location location : gameState.getLocations()) {
+			if (location.hasToken() && 
+					location.getActionToken().getPriority() != null) {
+				Faction faction = location.getOwner();
+				AbstractActionToken token = location.getActionToken();
+				
+				Map<Integer, ActionLocations> tokenPrioritiesToActionLocations =
+						factionsToTokenPrioritiesToActionLocations.get(faction);
+				
+				int tokenPriority = token.getPriority();
+				
+				if (!tokenPrioritiesToActionLocations.containsKey(tokenPriority)) {
+					int factionPriority = gameState.getTurnOrderPosition(faction);
+					ActionLocations actionLocations = 
+							new ActionLocations(faction, factionPriority, location);
+					tokenPrioritiesToActionLocations.put(tokenPriority, actionLocations);
+				}
+				
+				ActionLocations actionLocations = 
+						tokenPrioritiesToActionLocations.get(tokenPriority);
+				
+				actionLocations.addLocation(location);
+			}
+		}
+		
+		for (Map<Integer, ActionLocations> tokenPrioritiesToActionLocations : 
+			factionsToTokenPrioritiesToActionLocations.values()) {
+			for (ActionLocations actionLocations : 
+				tokenPrioritiesToActionLocations.values()) {
+				actionLocationsQueue.add(actionLocations);
+			}			
 		}
 	}
 }

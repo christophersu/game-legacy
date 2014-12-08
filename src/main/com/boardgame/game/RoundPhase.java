@@ -45,7 +45,7 @@ abstract class RoundPhase {
 	final static class PlanRevealTokens extends RoundPhase {
 		@Override
 		void prepare(Game game) {
-			throw new UnsupportedOperationException();
+			game.buildActionLocationsQueue();
 		}
 	}
 	

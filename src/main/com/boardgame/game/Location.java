@@ -217,6 +217,10 @@ final class Location {
 		return invest;
 	}
 	
+	boolean hasToken() {
+		return actionToken != null;
+	}
+	
 	private void checkRep() {
 		assert name != null : "Null name";
 		assert terrain != null : "Null terrain";
