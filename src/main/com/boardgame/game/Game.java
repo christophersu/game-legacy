@@ -3,6 +3,7 @@ package com.boardgame.game;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -287,9 +288,28 @@ public final class Game {
 		return actionLocationsQueue.peek().getLocations();
 	}
 	
-	public Set<Location> findValidLocationTargets(Faction faction, 
-			Location sourceLocation) {
-		throw new UnsupportedOperationException();
+	/**
+	 * Finds the locations that may be targeted by a token on the given source
+	 * location.
+	 * @param sourceLocation  the location whose targets will be found, not null
+	 * @throws IllegalArgumentException if sourceLocation is null
+	 * @return the locations that may be targeted by a token on the given source
+	 * location (may be empty if the token has no targets or the location has no
+	 * token) 
+	 */
+	public Set<Location> findValidLocationTargets(Location sourceLocation) {
+		if (sourceLocation == null) {
+			throw new IllegalArgumentException("Null source location");
+		}
+		
+		Set<Location> validLocationTargets = new HashSet<>();
+		AbstractActionToken token = sourceLocation.getActionToken();
+		
+		if (token != null) {
+			validLocationTargets = token.findValidLocationTargets(sourceLocation);
+		}
+		
+		return validLocationTargets;
 	}
 	
 	public void chooseUnitforAction(AbstractUnit unit) {
