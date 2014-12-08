@@ -167,6 +167,10 @@ final class Location {
 		return actionToken;
 	}
 	
+	Set<Location> getAdjacentLocations() {
+		return new HashSet<>(adjacentLocations);
+	}
+	
 	AbstractActionToken removeActionToken() {
 		checkRep();
 		

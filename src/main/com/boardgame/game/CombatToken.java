@@ -1,6 +1,6 @@
 package com.boardgame.game;
 
-class CombatToken extends AbstractActionToken {
+abstract class CombatToken extends AbstractActionToken {
 	protected int strength;
 	
 	CombatToken(boolean isSpecial, TokenString tokenString, int strength, 

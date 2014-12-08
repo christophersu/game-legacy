@@ -287,7 +287,7 @@ public final class Game {
 		return actionLocationsQueue.peek().getLocations();
 	}
 	
-	public Set<Location> getValidLocationTargets(Faction faction, 
+	public Set<Location> findValidLocationTargets(Faction faction, 
 			Location sourceLocation) {
 		throw new UnsupportedOperationException();
 	}
