@@ -15,6 +15,10 @@ abstract class RoundPhase {
 	boolean getCanSwitchToken() {
 		return false;
 	}
+	
+	boolean getCanUseToken() {
+		return false;
+	}
 
 	final static class EventDisplayCards extends RoundPhase {
 		@Override
@@ -65,6 +69,11 @@ abstract class RoundPhase {
 		@Override
 		void prepare(Game game) {
 			throw new UnsupportedOperationException();
+		}
+		
+		@Override
+		boolean getCanUseToken() {
+			return true;
 		}
 	}
 }

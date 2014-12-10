@@ -1,5 +1,6 @@
 package com.boardgame.game;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,6 +51,15 @@ final class BlitzToken extends AbstractActionToken {
 		}
 		
 		return validTargetTerrains;
+	}
+
+	@Override
+	boolean actSpecifically(Game game, Location tokenLocation, Location target, 
+			Collection<AbstractUnit> unitsInvolved) {
+		game.removeTokenHelper(target);
+		game.removeTokenHelper(tokenLocation);
+		
+		return true;
 	}
 }
 

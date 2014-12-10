@@ -112,6 +112,14 @@ final class Location {
 		return !units.isEmpty();
 	}
 
+	int getNumUnits() {
+		return units.size();
+	}
+	
+	Collection<AbstractUnit> getUnits() {
+		return new ArrayList<>(units);
+	}
+	
 	/**
 	 * @throws IllegalStateException if there is no owner
 	 * @return whether the token was placed
@@ -223,6 +231,20 @@ final class Location {
 	
 	boolean hasToken() {
 		return actionToken != null;
+	}
+	
+	boolean hasAllUnits(Collection<AbstractUnit> otherUnits) {
+		assert otherUnits != null;
+		
+		Collection<AbstractUnit> unitsCopy = new ArrayList<>(units);
+		
+		for (AbstractUnit unit : otherUnits) {
+			if (!unitsCopy.remove(unit)) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	private void checkRep() {

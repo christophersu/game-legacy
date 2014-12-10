@@ -1,5 +1,6 @@
 package com.boardgame.game;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +13,9 @@ final class InvestToken extends AbstractActionToken {
 
 	@Override
 	boolean isValidTargeting(Location source, Location target) {
+		assert source != null;
+		assert target != null;
+		
 		return source.equals(target);
 	}
 
@@ -23,5 +27,17 @@ final class InvestToken extends AbstractActionToken {
 	@Override
 	protected Set<Terrain> getValidTargetTerrains(Terrain terrain) {
 		return new HashSet<>();
+	}
+
+	@Override
+	boolean actSpecifically(Game game, Location tokenLocation, Location target,
+			Collection<AbstractUnit> unitsInvolved) {
+		assert tokenLocation.equals(target);
+		
+		Player player = game.getGameState().getFactionsToPlayers().get(target.getOwner());
+		
+		player.moveCashFromPoolToHand(tokenLocation.getInvest() + 1);
+
+		throw new UnsupportedOperationException("Need to implement unit creation");
 	}
 }

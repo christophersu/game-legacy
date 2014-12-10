@@ -1,5 +1,6 @@
 package com.boardgame.game;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -84,6 +85,38 @@ abstract class AbstractActionToken {
 		
 		return validLocationTargets;
 	}
+	
+	boolean act(Game game, Location tokenLocation, Location target, 
+			Collection<AbstractUnit> unitsInvolved) {
+		assert game != null;
+		assert tokenLocation != null;
+		assert target != null;
+		
+		assert tokenLocation.getActionToken() == this;
+		
+		boolean success = false;
+		
+		Set<Terrain> validTargetTerrains = 
+				sourceTerrainsToValidTargetTerrains.get(tokenLocation.getTerrain());
+		
+		if (validTargetTerrains.contains(target.getTerrain()) && 
+				isValidTargeting(tokenLocation, target)) {
+			success = actSpecifically(game, tokenLocation, target, unitsInvolved);
+		}
+		
+		return success;
+	}
+	
+	boolean isUsableDuringCombat() {
+		return false;
+	}
+	
+	int getCombatBonus() {
+		return 0;
+	}
+	
+	abstract boolean actSpecifically(Game game, Location tokenLocation, 
+			Location target, Collection<AbstractUnit> unitsInvolved);
 	
 	abstract boolean isValidTargeting(Location source, Location target);
 	

@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -113,7 +114,8 @@ public final class GameStateLoader {
 			.setTieBreakingOrder(findTieBreakingOrder(root))
 			.setSpecialTokenOrder(findSpecialTokenOrder(root))
 			.setSpecialTokensPerPosition(findSpecialTokensPerPosition(root))
-			.setFactionsToSupplies(findFactionsToSupplies(root))
+			.setFactionsToSupplyPositions(findFactionsToSupplyPositions(root))
+			.setSupplyLimits(findSupplyLimits(root))
 			.setFactionsToNumBases(findFactionsToNumBases(root))
 			.setThreatLevel(findThreatLevel(root))
 			.setRound(findRound(root));
@@ -343,9 +345,24 @@ public final class GameStateLoader {
 	}       
 	        
 	@SuppressWarnings("unchecked")
-	private static Map<Faction, Integer> findFactionsToSupplies(JSONObject root) {
-		return (Map<Faction, Integer>) root.get("factionsToSupplies"); 
-	}       
+	private static Map<Faction, Integer> findFactionsToSupplyPositions(JSONObject root) {
+		return (Map<Faction, Integer>) root.get("factionsToSupplyPositions"); 
+	}  
+	
+	private static List<List<Integer>> findSupplyLimits(JSONObject root) {
+		JSONArray limitsListObject = (JSONArray) root.get("supplyLimits");
+		
+		List<List<Integer>> limitsList = new ArrayList<List<Integer>>();
+		
+		for (Object limitsElement : limitsListObject) {
+			@SuppressWarnings("unchecked")
+			List<Integer> limits = (List<Integer>) limitsElement;
+			Collections.sort(limits, Collections.reverseOrder());
+			limitsList.add(limits);
+		}
+		
+		return limitsList;
+	}
 	        
 	@SuppressWarnings("unchecked")
 	private static Map<Faction, Integer> findFactionsToNumBases(JSONObject root) {

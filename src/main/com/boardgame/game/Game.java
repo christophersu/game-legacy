@@ -2,6 +2,7 @@ package com.boardgame.game;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,6 +10,9 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
+import java.util.TreeSet;
+
+import com.boardgame.game.Combat.Phase;
 
 /**
  * A game object that holds the state of the game and has methods that can 
@@ -16,12 +20,15 @@ import java.util.Set;
  *
  */
 public final class Game {
+	private static final int MIN_SUPPLY_CONSIDERATION = 2;
+	
 	private final GameState gameState;
 	private final IntegersToObjects integersToObjects;
 	
 	private final Queue<ActionLocations> actionLocationsQueue;
 	
 	private RoundState roundState;
+	private Combat combat;
 	
 	/**
 	 * Creates a new game with the given initial game state
@@ -127,11 +134,6 @@ public final class Game {
 					+ "tokens");
 		}
 		
-		return placeTokenHelper(faction, token, location);
-	}
-	
-	private boolean placeTokenHelper(Faction faction, AbstractActionToken token, 
-			Location location) {
 		if (faction == null) {
 			throw new IllegalArgumentException("Null faction");
 		}
@@ -147,6 +149,18 @@ public final class Game {
 		if (location.getOwner() != faction) {
 			throw new IllegalStateException("Faction does not own location");
 		}
+		
+		return placeTokenHelper(token, location);
+	}
+	
+	private boolean placeTokenHelper(AbstractActionToken token, 
+			Location location) {
+		assert token != null;
+		assert location != null;
+
+		Faction faction = location.getOwner();
+		
+		assert faction != null;
 		
 		Player player = gameState.getFactionsToPlayers().get(faction);
 		
@@ -189,10 +203,6 @@ public final class Game {
 					+ "tokens");
 		}
 		
-		return removeTokenHelper(faction, location);
-	}
-	
-	private boolean removeTokenHelper(Faction faction, Location location) {
 		if (faction == null) {
 			throw new IllegalArgumentException("Faction was null");
 		}
@@ -204,6 +214,16 @@ public final class Game {
 		if (location.getOwner() != faction) {
 			throw new IllegalStateException("Faction does not own location");
 		}
+		
+		return removeTokenHelper(location);
+	}
+	
+	boolean removeTokenHelper(Location location) {
+		assert location != null;
+
+		Faction faction = location.getOwner();
+		
+		assert faction != null;
 		
 		Player player = gameState.getFactionsToPlayers().get(faction);
 
@@ -246,12 +266,28 @@ public final class Game {
 			throw new IllegalStateException("Faction cannot use power");
 		}
 		
+		if (faction == null) {
+			throw new IllegalArgumentException("Null faction");
+		}
+		
+		if (nextToken == null) {
+			throw new IllegalArgumentException("Null token");
+		}
+		
+		if (location == null) {
+			throw new IllegalArgumentException("Null location");
+		}
+		
+		if (location.getOwner() != faction) {
+			throw new IllegalStateException("Faction does not own location");
+		}
+		
 		boolean switchResult = false;
 		
-		boolean removeResult = removeTokenHelper(faction, location);
+		boolean removeResult = removeTokenHelper(location);
 		
 		if (removeResult) {
-			switchResult = placeTokenHelper(faction, nextToken, location);
+			switchResult = placeTokenHelper(nextToken, location);
 			assert switchResult;
 		}
 		
@@ -316,9 +352,68 @@ public final class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void useToken(Faction faction, AbstractActionToken token, 
-			Location tokenLocation, Location target) {
-		throw new UnsupportedOperationException();
+	public boolean useToken(Faction faction, Location tokenLocation, 
+			Location target, Collection<AbstractUnit> unitsInvolved) {
+		if (!roundState.getRoundPhase().getCanUseToken()) {
+			throw new IllegalStateException("Can't use tokens now.");
+		}
+		
+		if (faction == null) {
+			throw new IllegalArgumentException("Null faction");
+		}
+		
+		if (tokenLocation == null) {
+			throw new IllegalArgumentException("Null token location");
+		}
+		
+		if (target == null) {
+			throw new IllegalArgumentException("Null target location");
+		}
+		
+		if (tokenLocation.getOwner() != faction) {
+			throw new IllegalStateException("Faction does not own token "
+					+ "location");
+		}
+		
+		if (tokenLocation.getActionToken() == null) {
+			throw new IllegalStateException("No token on source location");
+		}
+		
+		if (unitsInvolved == null) {
+			throw new IllegalArgumentException("Null units involved");
+		}
+		
+		if (!tokenLocation.hasAllUnits(unitsInvolved)) {
+			throw new IllegalStateException("Location doesn't have all units"
+					+ "involved");
+		}
+		
+		if (!actionLocationsQueue.peek().getLocations().contains(tokenLocation)) {
+			throw new IllegalStateException("Out of turn");
+		}
+		
+		AbstractActionToken token = tokenLocation.getActionToken();
+		
+		Collection<AbstractUnit> unitsInvolvedCopy = new ArrayList<>();
+		
+		for (AbstractUnit unit : unitsInvolved) {
+			if (unit == null) {
+				throw new IllegalArgumentException("Null involved unit");
+			}
+			
+			unitsInvolvedCopy.add(unit);
+		}
+		
+		boolean success = token.act(this, tokenLocation, target, unitsInvolvedCopy);
+		
+		if (success) {
+			actionLocationsQueue.peek().removeLocation(tokenLocation);
+			if (actionLocationsQueue.peek().isEmpty()) {
+				actionLocationsQueue.remove();
+			}
+		}
+		
+		return success;
 	}
 	
 	public void resetToken(Faction faction, AbstractActionToken token) {
@@ -371,11 +466,186 @@ public final class Game {
 		throw new UnsupportedOperationException();
 	}
 	
+	GameState getGameState() {
+		return gameState;
+	}
+	
 	/**
 	 * @return the object with integer to object mappings
 	 */
 	public IntegersToObjects getIntegersToObjects() {
 		return integersToObjects;
+	}
+	
+	void beginCombat(Collection<AbstractUnit> attackingUnits, Location source, 
+			Location target) {
+		combat = new Combat(attackingUnits, source, target);
+		Set<Location> adjacentLocations = source.getAdjacentLocations();
+		
+		Set<Location> actableLocations = new HashSet<>();
+		
+		for (Location location : adjacentLocations) {
+			AbstractActionToken token = source.getActionToken();
+			
+			if (token != null && token.isUsableDuringCombat()) {
+				actableLocations.add(location);
+			}
+		}
+		
+		addToActionLocationsQueue(actableLocations);
+	}
+	
+	boolean isCombatOccurring() {
+		return combat != null;
+	}
+	
+	void assist(int assistStrength, boolean isAssistingAttacker) {
+		assert assistStrength > 0;
+		assert combat != null;
+		assert combat.getPhase() == Phase.ASSIST;
+		
+		combat.assist(assistStrength, isAssistingAttacker);
+	}
+	
+	boolean move(Location source, Location target,
+			Collection<AbstractUnit> unitsInvolved) {
+		assert source != null;
+		assert target != null;
+		assert !source.equals(target);
+		assert unitsInvolved != null;
+		assert source.hasAllUnits(unitsInvolved);
+		
+		Faction targetOwner = target.getOwner();
+		
+		assert targetOwner == null || source.getOwner() == targetOwner;
+		
+		boolean isSupplyOkay = 
+				checkSupplyForMove(source, target, unitsInvolved.size());
+		
+		if (isSupplyOkay) {
+			for (AbstractUnit unit : unitsInvolved) {
+				boolean removeResult = source.removeUnit(unit);
+				assert removeResult;
+				target.addUnit(unit);
+			}
+		}
+		
+		return isSupplyOkay;
+	}
+	
+	private boolean checkSupplyForMove(Location source, Location target, 
+			int numUnits) {
+		Set<Location> supplyConstrainedLocations = new HashSet<>();
+		
+		for (Location location : gameState.getLocations()) {
+			if (location.getOwner() == source.getOwner() && 
+					location.getNumUnits() >= MIN_SUPPLY_CONSIDERATION) {
+				supplyConstrainedLocations.add(location);	
+			}
+		}
+		
+		Set<Location> sortedLocations = new TreeSet<>(new Comparator<Location>() {
+			@Override
+			public int compare(Location o1, Location o2) {
+				//descending order
+				return o2.getNumUnits() - o1.getNumUnits();
+			}
+		});
+		
+		sortedLocations.addAll(supplyConstrainedLocations);
+		
+		Faction faction = source.getOwner();
+		int supplyPosition = gameState.getFactionsToSupplyPositions().get(faction);
+		//assuming sorted descending
+		List<Integer> supplyLimits = gameState.getSupplyLimits().get(supplyPosition);
+		
+		int supplyIndex = 0;
+		
+		for (Location location : sortedLocations) {
+			if (supplyIndex == supplyLimits.size()) {
+				return false;
+			}
+			
+			assert supplyIndex <= supplyLimits.size();
+			
+			int armySize = location.getNumUnits();
+			
+			if (location.equals(source)) {
+				armySize -= numUnits;
+			}
+			
+			if (location.equals(target)) {
+				armySize += numUnits;
+			}
+			
+			if (armySize > supplyLimits.get(supplyIndex)) {
+				return false;
+			}
+			
+			supplyIndex++;
+		}
+		
+		return true;
+	}
+	
+	private void addToActionLocationsQueue(Set<Location> locations) {
+		Map<Faction, Map<Integer, ActionLocations>> 
+			factionsToTokenPrioritiesToActionLocations = new HashMap<>();
+		
+		for (Faction faction : gameState.getFactions()) {
+			factionsToTokenPrioritiesToActionLocations.put(faction, new HashMap<>());
+		}
+		
+		for (Location location : locations) {
+			assert location.hasToken();
+			
+			Faction faction = location.getOwner();
+			AbstractActionToken token = location.getActionToken();
+			
+			Map<Integer, ActionLocations> tokenPrioritiesToActionLocations =
+					factionsToTokenPrioritiesToActionLocations.get(faction);
+			
+			int tokenPriority = -1;
+			
+			if (token.getPriority() != null) {
+				tokenPriority = token.getPriority();
+			}
+			
+			if (!tokenPrioritiesToActionLocations.containsKey(tokenPriority)) {
+				int factionPriority = gameState.getTurnOrderPosition(faction);
+				ActionLocations actionLocations = 
+						new ActionLocations(faction, factionPriority, location);
+				tokenPrioritiesToActionLocations.put(tokenPriority, actionLocations);
+			}
+			
+			ActionLocations actionLocations = 
+					tokenPrioritiesToActionLocations.get(tokenPriority);
+			
+			actionLocations.addLocation(location);
+		}
+		
+		for (Map<Integer, ActionLocations> tokenPrioritiesToActionLocations : 
+			factionsToTokenPrioritiesToActionLocations.values()) {
+			for (ActionLocations actionLocations : 
+				tokenPrioritiesToActionLocations.values()) {
+				actionLocationsQueue.add(actionLocations);
+			}			
+		}
+	}
+	
+	public void buildActionLocationsQueue() {
+		assert actionLocationsQueue.isEmpty();
+		
+		Set<Location> actableLocations = new HashSet<>();
+		
+		for (Location location : gameState.getLocations()) {
+			if (location.hasToken() && 
+					location.getActionToken().getPriority() != null) {
+				actableLocations.add(location);
+			}
+		}
+		
+		addToActionLocationsQueue(actableLocations);
 	}
 	
 	/**
@@ -521,50 +791,6 @@ public final class Game {
 			assert integersToUnits.containsValue(unit);
 			
 			return integersToUnits.getKey(unit);
-		}
-	}
-
-	public void buildActionLocationsQueue() {
-		assert actionLocationsQueue.isEmpty();
-		
-		Map<Faction, Map<Integer, ActionLocations>> 
-			factionsToTokenPrioritiesToActionLocations = new HashMap<>();
-		
-		for (Faction faction : gameState.getFactions()) {
-			factionsToTokenPrioritiesToActionLocations.put(faction, new HashMap<>());
-		}
-		
-		for (Location location : gameState.getLocations()) {
-			if (location.hasToken() && 
-					location.getActionToken().getPriority() != null) {
-				Faction faction = location.getOwner();
-				AbstractActionToken token = location.getActionToken();
-				
-				Map<Integer, ActionLocations> tokenPrioritiesToActionLocations =
-						factionsToTokenPrioritiesToActionLocations.get(faction);
-				
-				int tokenPriority = token.getPriority();
-				
-				if (!tokenPrioritiesToActionLocations.containsKey(tokenPriority)) {
-					int factionPriority = gameState.getTurnOrderPosition(faction);
-					ActionLocations actionLocations = 
-							new ActionLocations(faction, factionPriority, location);
-					tokenPrioritiesToActionLocations.put(tokenPriority, actionLocations);
-				}
-				
-				ActionLocations actionLocations = 
-						tokenPrioritiesToActionLocations.get(tokenPriority);
-				
-				actionLocations.addLocation(location);
-			}
-		}
-		
-		for (Map<Integer, ActionLocations> tokenPrioritiesToActionLocations : 
-			factionsToTokenPrioritiesToActionLocations.values()) {
-			for (ActionLocations actionLocations : 
-				tokenPrioritiesToActionLocations.values()) {
-				actionLocationsQueue.add(actionLocations);
-			}			
 		}
 	}
 }

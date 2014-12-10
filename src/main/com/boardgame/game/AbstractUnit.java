@@ -2,6 +2,7 @@ package com.boardgame.game;
 
 abstract class AbstractUnit {
 	private int cost;
+	private boolean isRouted;
 	
 	private UnitString unitString;
 	
@@ -27,6 +28,14 @@ abstract class AbstractUnit {
 	
 	int getCost() {
 		return cost;
+	}
+	
+	boolean getIsRouted() {
+		return isRouted;
+	}
+	
+	void setIsRouted(boolean isRouted) {
+		this.isRouted = isRouted;
 	}
 	
 	@Override

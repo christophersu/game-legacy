@@ -15,7 +15,8 @@ final class GameState {
 	private final List<Faction> tieBreakingOrder;
 	private final List<Faction> specialTokenOrder;
 	private final List<Integer> specialTokensPerPosition;
-	private final Map<Faction, Integer> factionsToSupplies;
+	private final Map<Faction, Integer> factionsToSupplyPositions;
+	private final List<List<Integer>> supplyLimits;
 	private final Map<Faction, Integer> factionsToNumBases;
 	private final int threatLevel;
 	private final int round;
@@ -37,7 +38,8 @@ final class GameState {
 			Map<Faction, Player> factionsToPlayers, List<Faction> turnOrder, 
 			List<Faction> tieBreakingOrder, List<Faction> specialTokenOrder,
 			List<Integer> specialTokensPerPosition, 
-			Map<Faction, Integer> factionsToSupplies, 
+			Map<Faction, Integer> factionsToSupplyPositions,
+			List<List<Integer>> supplyLimits,
 			Map<Faction, Integer> factionsToNumBases,
 			int threatLevel, int round, 
 			Queue<AbstractEventCard> eventCards1Stack,
@@ -58,7 +60,8 @@ final class GameState {
 		assert tieBreakingOrder != null;
 		assert specialTokenOrder != null;
 		assert specialTokensPerPosition != null;
-		assert factionsToSupplies != null;
+		assert factionsToSupplyPositions != null;
+		assert supplyLimits != null;
 		assert factionsToNumBases != null;
 		assert eventCards1Stack != null;
 		assert eventCards1Discard != null;
@@ -80,7 +83,8 @@ final class GameState {
 		this.tieBreakingOrder = tieBreakingOrder;
 		this.specialTokenOrder = specialTokenOrder;
 		this.specialTokensPerPosition = specialTokensPerPosition;
-		this.factionsToSupplies = factionsToSupplies;
+		this.factionsToSupplyPositions = factionsToSupplyPositions;
+		this.supplyLimits = supplyLimits;
 		this.factionsToNumBases = factionsToNumBases;
 		this.threatLevel = threatLevel;
 		this.round = round;
@@ -154,8 +158,16 @@ final class GameState {
 		return specialTokensPerPosition;
 	}
 
-	Map<Faction, Integer> getFactionsToSupplies() {
-		return factionsToSupplies;
+	Map<Faction, Integer> getFactionsToSupplyPositions() {
+		return factionsToSupplyPositions;
+	}
+	
+	List<List<Integer>> getSupplyLimits() {
+		return supplyLimits;
+	}
+	
+	List<List<Integer>> supplyLimits() {
+		return supplyLimits;
 	}
 
 	Map<Faction, Integer> getFactionsToNumBases() {
@@ -240,7 +252,8 @@ final class GameState {
 		private List<Faction> tieBreakingOrder;
 		private List<Faction> specialTokenOrder;
 		private List<Integer> specialTokensPerPosition;
-		private Map<Faction, Integer> factionsToSupplies;
+		private Map<Faction, Integer> factionsToSupplyPositions;
+		private List<List<Integer>> supplyLimits;
 		private Map<Faction, Integer> factionsToNumBases;
 		private int threatLevel;
 		private int round;
@@ -292,8 +305,13 @@ final class GameState {
 			return this;
 		}
 		
-		Builder setFactionsToSupplies(Map<Faction, Integer> factionsToSupplies) {
-			this.factionsToSupplies = factionsToSupplies;
+		Builder setFactionsToSupplyPositions(Map<Faction, Integer> factionsToSupplyPositions) {
+			this.factionsToSupplyPositions = factionsToSupplyPositions;
+			return this;
+		}
+		
+		Builder setSupplyLimits(List<List<Integer>> supplyLimits) {
+			this.supplyLimits = supplyLimits;
 			return this;
 		}
 		
@@ -380,11 +398,11 @@ final class GameState {
 		GameState build() {
 			return new GameState(locations, factionsToPlayers, turnOrder, 
 					tieBreakingOrder, specialTokenOrder, specialTokensPerPosition, 
-					factionsToSupplies, factionsToNumBases, threatLevel, round, 
-					eventCards1Stack, eventCards1Discard, eventCards2Stack,
-					eventCards2Discard, eventCards3Stack, eventCards3Discard, 
-					threatCardsStack, threatCardsDiscard, combatCards,
-					hasCombatBonusBeenUsed, hasSightPowerBeenUsed, 
+					factionsToSupplyPositions, supplyLimits, factionsToNumBases, 
+					threatLevel, round, eventCards1Stack, eventCards1Discard, 
+					eventCards2Stack, eventCards2Discard, eventCards3Stack, 
+					eventCards3Discard, threatCardsStack, threatCardsDiscard, 
+					combatCards, hasCombatBonusBeenUsed, hasSightPowerBeenUsed, 
 					unitStringsToUnits, tokenStringsToTokens);
 		}
 	}

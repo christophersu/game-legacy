@@ -1,5 +1,6 @@
 package com.boardgame.game;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,6 +15,11 @@ final class DefenseToken extends CombatToken {
 	protected Set<Terrain> getValidTargetTerrains(Terrain terrain) {
 		return new HashSet<>();
 	}
+	
+	@Override
+	int getCombatBonus() {
+		return strength;
+	}
 
 	@Override
 	boolean isValidTargeting(Location source, Location target) {
@@ -23,5 +29,11 @@ final class DefenseToken extends CombatToken {
 	@Override
 	boolean isBlitzable(boolean isBlitzSpecial) {
 		return isBlitzSpecial;
+	}
+
+	@Override
+	boolean actSpecifically(Game game, Location tokenLocation, Location target,
+			Collection<AbstractUnit> unitsInvolved) {
+		return true;
 	}
 }

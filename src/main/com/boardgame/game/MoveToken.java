@@ -1,5 +1,6 @@
 package com.boardgame.game;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,6 +10,8 @@ final class MoveToken extends CombatToken {
 	MoveToken(boolean isSpecial, TokenString tokenString, int strength) {
 		super(isSpecial, tokenString, strength, 1);
 	}
+	
+	//don't forget moving through boats
 
 	@Override
 	protected Set<Terrain> getValidTargetTerrains(Terrain terrain) {
@@ -30,6 +33,11 @@ final class MoveToken extends CombatToken {
 		
 		return validTargetTerrains;
 	}
+	
+	@Override
+	int getCombatBonus() {
+		return strength;
+	}
 
 	@Override
 	boolean isValidTargeting(Location source, Location target) {
@@ -39,5 +47,32 @@ final class MoveToken extends CombatToken {
 	@Override
 	boolean isBlitzable(boolean isBlitzSpecial) {
 		return false;
+	}
+
+	@Override
+	boolean actSpecifically(Game game, Location tokenLocation, Location target, 
+			Collection<AbstractUnit> unitsInvolved) {
+		Faction sourceOwner = tokenLocation.getOwner();
+		Faction targetOwner = target.getOwner();
+		
+		boolean success = true;
+		
+		for (AbstractUnit unit : unitsInvolved) {
+			if (unit.getIsRouted()) {
+				success = false;
+			}
+		}
+		
+		if (success && !game.isCombatOccurring()) {
+			if (sourceOwner != targetOwner && target.hasUnits()) {
+				game.beginCombat(unitsInvolved, tokenLocation, target);
+				success = true;
+			}
+			else {
+				success = game.move(tokenLocation, target, unitsInvolved);
+			}
+		}
+		
+		return success;
 	}
 }

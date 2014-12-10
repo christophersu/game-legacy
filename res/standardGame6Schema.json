@@ -81,7 +81,7 @@
 			"minItems" : 6,
 			"maxItems" : 6
 		},
-		"factionsToSupplies" : {
+		"factionsToSupplyPositions" : {
 			"type" : "object",
 			"patternProperties" : {
 				"^(RED|ORANGE|YELLOW|GREEN|WHITE|BLACK)$" : {
@@ -91,6 +91,22 @@
 			},
 			"additionalProperties" : false,
 			"required" : ["RED", "ORANGE", "YELLOW", "GREEN", "WHITE", "BLACK"]
+		},
+		"supplyLimits" : {
+			"type" : "array",
+			"items" : {
+				"type" : "array",
+				"items" : {
+					"type" : "integer",
+					"minimum" : 2
+				},
+				"additionalItems" : false,
+				"minItems" : 1
+			},
+			"additionalItems" : false,
+			"uniqueItems" : true,
+			"minItems" : 6,
+			"maxItems" : 6
 		},
 		"factionsToNumBases" : {
 			"$ref" : "#/properties/factionsToSupplies"

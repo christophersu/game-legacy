@@ -1,5 +1,6 @@
 package com.boardgame.game;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,6 +32,11 @@ final class AssistToken extends CombatToken {
 		
 		return validTargetTerrains;
 	}
+	
+	@Override
+	boolean isUsableDuringCombat() {
+		return false;
+	}
 
 	@Override
 	boolean isValidTargeting(Location source, Location target) {
@@ -40,5 +46,12 @@ final class AssistToken extends CombatToken {
 	@Override
 	boolean isBlitzable(boolean isBlitzSpecial) {
 		return true;
+	}
+
+	@Override
+	boolean actSpecifically(Game game, Location tokenLocation, Location target,
+			Collection<AbstractUnit> unitsInvolved) {
+		throw new UnsupportedOperationException();
+		//make sure unitsInvolved is empty or contains every non routed unit
 	}
 }
