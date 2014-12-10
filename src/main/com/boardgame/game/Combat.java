@@ -26,6 +26,9 @@ final class Combat {
 	Combat(Collection<AbstractUnit> attackingUnits, Location source, 
 			Location target) {
 		assert source.getActionToken() != null;
+		assert attackingUnits != null;
+		assert source != null;
+		assert target != null;
 		
 		int attackingTokenBonus = source.getActionToken().getCombatBonus();
 		int defendingTokenBonus = 0;
@@ -52,21 +55,48 @@ final class Combat {
 		return phase;
 	}
 	
+	Location getSource() {
+		return source;
+	}
+	
+	Location getTarget() {
+		return target;
+	}
+	
+	Faction getAttacker() {
+		return source.getOwner();
+	}
+	
+	Faction getDefender() {
+		return target.getOwner();
+	}
+	
 	void assist(int assistStrength, boolean isAssistingAttacker) {
-		CombatStrategy strat;
+		getStrategy(isAssistingAttacker).assistStrength += assistStrength;
+	}
+	
+	void useCombatCard(AbstractCombatCard combatCard, boolean isAttacker) {
+		assert combatCard != null;
 		
-		if (isAssistingAttacker) {
-			strat = attackStrategy;
-		}
-		else {
-			strat = defenseStrategy;
-		}
+		getStrategy(isAttacker).combatCard = combatCard;
 		
-		strat.assistStrength += assistStrength;
+		if (attackStrategy.combatCard != null && 
+				defenseStrategy.combatCard != null) {
+			nextPhase();
+		}
 	}
 	
 	void nextPhase() {
 		phase = phase.nextPhase;
+	}
+	
+	private CombatStrategy getStrategy(boolean isAttacker) {
+		if (isAttacker) {
+			return attackStrategy;
+		}
+		else {
+			return defenseStrategy;
+		}
 	}
 	
 	private class CombatStrategy {

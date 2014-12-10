@@ -348,16 +348,30 @@ public final class Game {
 		return validLocationTargets;
 	}
 	
-	public void chooseUnitforAction(AbstractUnit unit) {
-		throw new UnsupportedOperationException();
-	}
-	
+	/**
+	 * Uses the given faction's token located at tokenLocation, with a target
+	 * location of target, and uses the given unitsInvolved
+	 * @param faction  the faction whose token will be used, not null
+	 * @param tokenLocation  the location at which the token to be used will be,
+	 * not null
+	 * @param target  the location the token targets, not null
+	 * @param unitsInvolved  the units at tokenLocation involved in this use, 
+	 * not null, no null elements
+	 * @throws IllegalArgumentException if faction is null
+	 * @throws IllegalArgumentException if tokenLocation is null
+	 * @throws IllegalArgumentException if target is null
+	 * @throws IllegalArgumentException if unitsInvolved is null
+	 * @throws IllegalStateException if not in a token using state
+	 * @throws IllegalStateException if faction is not the owner of 
+	 * tokenLocation
+	 * @throws IllegalStateException if there is no token at tokenLocation
+	 * @throws IllegalStateException if there are units in unitsInvolved that
+	 * aren't at tokenLocation
+	 * @throws IllegalStateException if the token use is out of turn  
+	 * @return whether or not the use of the token was correct and successful
+	 */
 	public boolean useToken(Faction faction, Location tokenLocation, 
 			Location target, Collection<AbstractUnit> unitsInvolved) {
-		if (!roundState.getRoundPhase().getCanUseToken()) {
-			throw new IllegalStateException("Can't use tokens now.");
-		}
-		
 		if (faction == null) {
 			throw new IllegalArgumentException("Null faction");
 		}
@@ -370,6 +384,14 @@ public final class Game {
 			throw new IllegalArgumentException("Null target location");
 		}
 		
+		if (unitsInvolved == null) {
+			throw new IllegalArgumentException("Null units involved");
+		}
+		
+		if (!roundState.getRoundPhase().getCanUseToken()) {
+			throw new IllegalStateException("Can't use tokens now.");
+		}
+		
 		if (tokenLocation.getOwner() != faction) {
 			throw new IllegalStateException("Faction does not own token "
 					+ "location");
@@ -377,10 +399,6 @@ public final class Game {
 		
 		if (tokenLocation.getActionToken() == null) {
 			throw new IllegalStateException("No token on source location");
-		}
-		
-		if (unitsInvolved == null) {
-			throw new IllegalArgumentException("Null units involved");
 		}
 		
 		if (!tokenLocation.hasAllUnits(unitsInvolved)) {
@@ -408,6 +426,7 @@ public final class Game {
 		
 		if (success) {
 			actionLocationsQueue.peek().removeLocation(tokenLocation);
+			
 			if (actionLocationsQueue.peek().isEmpty()) {
 				actionLocationsQueue.remove();
 			}
@@ -416,17 +435,61 @@ public final class Game {
 		return success;
 	}
 	
-	public void resetToken(Faction faction, AbstractActionToken token) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public void support(Faction supportingFaction, Location supportingLocation, 
-			Faction supportedFaction) {
-		throw new UnsupportedOperationException();
-	}
-	
+	/**
+	 * Has the given faction use its given combat card in combat.
+	 * @param faction  the faction that will use a card, not null
+	 * @param combatCard  the combat card that will be used, not null
+	 * @throws IllegalArgumentException if faction is null
+	 * @throws IllegalArgumentException if combatCard is null
+	 * @throws IllegalStateException if there's no combat
+	 * @throws IllegalStateException if the given faction is neither an attacker
+	 * nor a defender
+	 * @throws IllegalStateException if the faction cannot play the card
+	 * @throws IllegalStateException if it's not the card phase of the combat
+	 */
 	public void useCombatCard(Faction faction, AbstractCombatCard combatCard) {
-		throw new UnsupportedOperationException();
+		if (faction == null) {
+			throw new IllegalArgumentException("Null faction");
+		}
+		
+		if (combatCard == null) {
+			throw new IllegalArgumentException("Null combat card");
+		}
+		
+		if (!isCombatOccurring()) {
+			throw new IllegalStateException("Not in combat");
+		}
+
+		boolean isAttacker = combat.getAttacker() == faction;
+		boolean isDefender = combat.getDefender() == faction;
+		
+		if (!isAttacker && !isDefender) {
+			throw new IllegalStateException("Faction is neither attacker nor"
+					+ "defender");
+		}
+		
+		assert !(isAttacker && isDefender); 
+		
+		Player player = gameState.getFactionsToPlayers().get(faction);
+		
+		//should i differentiate between combat card not belonging to player and
+		//combat card not being in hand?
+		if (!player.getCombatCardsInHand().contains(combatCard)) {
+			throw new IllegalStateException("Faction can't play card");
+		}
+		
+		if (combat.getPhase() != Phase.CARD) {
+			throw new IllegalStateException("Can't use card now.");
+		}
+	
+		combat.useCombatCard(combatCard, isAttacker);
+		
+		if (player.getCombatCardsInHand().size() == 1) {
+			player.putDiscardPileIntoHand();
+		}
+		
+		boolean result = player.moveCombatCardToDiscard(combatCard);
+		assert result;
 	}
 	
 	public void useCombatBonus(Faction faction) {
