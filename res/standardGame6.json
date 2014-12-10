@@ -99,7 +99,7 @@
 		0,
 		0
 	],
-	"factionsToSupplies" : {
+	"factionsToSupplyPositions" : {
 		"RED" : 1,
 		"YELLOW" : 1,
 		"GREEN" : 1,
@@ -107,6 +107,14 @@
 		"BLACK" : 1,
 		"ORANGE" : 1
 	},
+	"supplyLimits" : [
+		[2, 2],
+		[3, 2],
+		[3, 2, 2],
+		[3, 3, 2, 2],
+		[3, 3, 2, 2, 2],
+		[4, 3, 3, 2, 2]
+	],
 	"factionsToNumBases" : {
 		"RED" : 1,
 		"YELLOW" : 1,
