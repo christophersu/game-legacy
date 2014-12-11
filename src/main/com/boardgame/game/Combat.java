@@ -86,6 +86,10 @@ final class Combat {
 		}
 	}
 	
+	void useCombatBonus(boolean onAttacker) {
+		getStrategy(onAttacker).combatBonus = 1;
+	}
+	
 	void nextPhase() {
 		phase = phase.nextPhase;
 	}

@@ -492,8 +492,48 @@ public final class Game {
 		assert result;
 	}
 	
+	/**
+	 * Lets the given faction use a combat bonus if able
+	 * @param faction  the faction that will use the combat bonus, not null
+	 * @throws IllegalArgumentException if faction is null
+	 * @throws IllegalStateException if faction is not allowed to use bonus
+	 * @throws IllegalStateException if not in combat or can't use bonus yet
+	 * @throws IllegalStateException if bonus was already used
+	 */
 	public void useCombatBonus(Faction faction) {
-		throw new UnsupportedOperationException();
+		if (faction == null) {
+			throw new IllegalArgumentException("Null faction");
+		}
+		
+		Faction allowedFaction = 
+				gameState.getFactionInTieBreakingOrderPosition(0);
+		
+		if (faction != allowedFaction) {
+			throw new IllegalStateException("Faction not allowed to use "
+					+ "bonus");
+		}
+		
+		if (!isCombatOccurring() || combat.getPhase() != Phase.BONUS) {
+			throw new IllegalStateException("Can't use at this time.");
+		}
+		
+		boolean isAttacker = combat.getAttacker() == faction;
+		boolean isDefender = combat.getDefender() == faction;
+		
+		if (!isAttacker && !isDefender) {
+			throw new IllegalStateException("Faction is neither attacker nor"
+					+ "defender");
+		}
+		
+		assert !(isAttacker && isDefender); 
+		
+		if (gameState.getHasCombatBonusBeenUsed()) {
+			throw new IllegalStateException("Bonus already used"); 
+		}
+		
+		combat.useCombatBonus(isAttacker);
+		
+		gameState.setHasCombatBonusBeenUsed(true);
 	}
 	
 	public void retreat(Faction defeatedFaction, AbstractUnit retreatingUnit, 

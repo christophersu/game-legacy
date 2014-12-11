@@ -230,6 +230,10 @@ final class GameState {
 		this.hasSightPowerBeenUsed = hasSightPowerBeenUsed;
 	}
 	
+	void setHasCombatBonusBeenUsed(boolean hasCombatBonusBeenUsed) {
+		this.hasCombatBonusBeenUsed = hasCombatBonusBeenUsed;
+	}
+	
 	Map<UnitString, AbstractUnit> getUnitStringsToUnits() {
 		return unitStringsToUnits;
 	}
