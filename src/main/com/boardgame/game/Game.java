@@ -12,22 +12,19 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.boardgame.game.Combat.Phase;
-
 /**
  * A game object that holds the state of the game and has methods that can 
  * manipulate that state when used appropriately.
  *
  */
 public final class Game {
-	private static final int MIN_SUPPLY_CONSIDERATION = 2;
-	
 	private final GameState gameState;
 	private final IntegersToObjects integersToObjects;
 	
 	private final Queue<ActionLocations> actionLocationsQueue;
 	
-	private RoundState roundState;
+	private RoundPhase roundPhase;
+	
 	private Combat combat;
 	
 	/**
@@ -43,6 +40,11 @@ public final class Game {
 		this.gameState = gameState;
 		this.integersToObjects = new IntegersToObjects();
 		this.actionLocationsQueue = new PriorityQueue<>();
+		this.roundPhase = new RoundPhase(isNewGame(gameState));
+	}
+	
+	private boolean isNewGame(GameState gameState) {
+		return gameState.getRound() == 1;
 	}
 	
 	/**
@@ -107,11 +109,11 @@ public final class Game {
 		
 		assert numPlayers == numExpected;
 		
-		roundState = new RoundState();
+		nextPhase();
 	}
 	
 	private boolean hasStartedGame() {
-		return roundState != null;
+		return roundPhase.hasStarted();
 	}
 	
 	/**
@@ -129,7 +131,7 @@ public final class Game {
 	 */
 	public boolean placeToken(Faction faction, AbstractActionToken token, 
 			Location location) {
-		if (!roundState.getRoundPhase().getCanPlaceToken()) {
+		if (roundPhase.isInPhase(RoundPhase.Phase.PLAN_PLACE_TOKENS)) {
 			throw new IllegalStateException("Can't call when not placing "
 					+ "tokens");
 		}
@@ -198,7 +200,7 @@ public final class Game {
 	 * @return whether or not a token was removed
 	 */
 	public boolean removeToken(Faction faction, Location location) {
-		if (roundState.getRoundPhase().getCanPlaceToken()) {
+		if (!roundPhase.isInPhase(RoundPhase.Phase.PLAN_DISPLAY_TOKENS)) {
 			throw new IllegalStateException("Can't call when not placing "
 					+ "tokens");
 		}
@@ -256,7 +258,7 @@ public final class Game {
 	 */
 	public boolean switchToken(Faction faction, AbstractActionToken nextToken,
 			Location location) {
-		if (!roundState.getRoundPhase().getCanSwitchToken()) {
+		if (!roundPhase.isInPhase(RoundPhase.Phase.PLAN_SIGHT_POWER)) {
 			throw new IllegalStateException("Can't call when not in sight "
 					+ "power state");
 		}
@@ -388,7 +390,7 @@ public final class Game {
 			throw new IllegalArgumentException("Null units involved");
 		}
 		
-		if (!roundState.getRoundPhase().getCanUseToken()) {
+		if (!roundPhase.isInPhase(RoundPhase.Phase.ACTION_RESOLVE_TOKENS)) {
 			throw new IllegalStateException("Can't use tokens now.");
 		}
 		
@@ -456,8 +458,8 @@ public final class Game {
 			throw new IllegalArgumentException("Null combat card");
 		}
 		
-		if (!isCombatOccurring()) {
-			throw new IllegalStateException("Not in combat");
+		if (!roundPhase.isInPhase(RoundPhase.Phase.COMBAT_CARD)) {
+			throw new IllegalStateException("Can't use combat card");
 		}
 
 		boolean isAttacker = combat.getAttacker() == faction;
@@ -476,10 +478,6 @@ public final class Game {
 		//combat card not being in hand?
 		if (!player.getCombatCardsInHand().contains(combatCard)) {
 			throw new IllegalStateException("Faction can't play card");
-		}
-		
-		if (combat.getPhase() != Phase.CARD) {
-			throw new IllegalStateException("Can't use card now.");
 		}
 	
 		combat.useCombatCard(combatCard, isAttacker);
@@ -513,7 +511,7 @@ public final class Game {
 					+ "bonus");
 		}
 		
-		if (!isCombatOccurring() || combat.getPhase() != Phase.BONUS) {
+		if (!roundPhase.isInPhase(RoundPhase.Phase.COMBAT_BONUS)) {
 			throw new IllegalStateException("Can't use at this time.");
 		}
 		
@@ -553,16 +551,12 @@ public final class Game {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void setUserReady(Faction faction, boolean isReady) {
+	public void setFactionReady(Faction faction, boolean isReady) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public int getNumPlayers() {
-		throw new UnsupportedOperationException();
-	}
-	
-	public int getState() {
-		throw new UnsupportedOperationException();
+	private void nextPhase() {
+		roundPhase.next(this);
 	}
 
 	public String getSnapshotForPlayer(Faction faction) {
@@ -605,7 +599,7 @@ public final class Game {
 	void assist(int assistStrength, boolean isAssistingAttacker) {
 		assert assistStrength > 0;
 		assert combat != null;
-		assert combat.getPhase() == Phase.ASSIST;
+		assert roundPhase.isInPhase(RoundPhase.Phase.COMBAT_ASSIST);
 		
 		combat.assist(assistStrength, isAssistingAttacker);
 	}
@@ -622,8 +616,8 @@ public final class Game {
 		
 		assert targetOwner == null || source.getOwner() == targetOwner;
 		
-		boolean isSupplyOkay = 
-				checkSupplyForMove(source, target, unitsInvolved.size());
+		boolean isSupplyOkay = BoardOperations.checkSupplyForMove
+				(gameState, source, target, unitsInvolved.size());
 		
 		if (isSupplyOkay) {
 			for (AbstractUnit unit : unitsInvolved) {
@@ -634,61 +628,6 @@ public final class Game {
 		}
 		
 		return isSupplyOkay;
-	}
-	
-	private boolean checkSupplyForMove(Location source, Location target, 
-			int numUnits) {
-		Set<Location> supplyConstrainedLocations = new HashSet<>();
-		
-		for (Location location : gameState.getLocations()) {
-			if (location.getOwner() == source.getOwner() && 
-					location.getNumUnits() >= MIN_SUPPLY_CONSIDERATION) {
-				supplyConstrainedLocations.add(location);	
-			}
-		}
-		
-		Set<Location> sortedLocations = new TreeSet<>(new Comparator<Location>() {
-			@Override
-			public int compare(Location o1, Location o2) {
-				//descending order
-				return o2.getNumUnits() - o1.getNumUnits();
-			}
-		});
-		
-		sortedLocations.addAll(supplyConstrainedLocations);
-		
-		Faction faction = source.getOwner();
-		int supplyPosition = gameState.getFactionsToSupplyPositions().get(faction);
-		//assuming sorted descending
-		List<Integer> supplyLimits = gameState.getSupplyLimits().get(supplyPosition);
-		
-		int supplyIndex = 0;
-		
-		for (Location location : sortedLocations) {
-			if (supplyIndex == supplyLimits.size()) {
-				return false;
-			}
-			
-			assert supplyIndex <= supplyLimits.size();
-			
-			int armySize = location.getNumUnits();
-			
-			if (location.equals(source)) {
-				armySize -= numUnits;
-			}
-			
-			if (location.equals(target)) {
-				armySize += numUnits;
-			}
-			
-			if (armySize > supplyLimits.get(supplyIndex)) {
-				return false;
-			}
-			
-			supplyIndex++;
-		}
-		
-		return true;
 	}
 	
 	private void addToActionLocationsQueue(Set<Location> locations) {

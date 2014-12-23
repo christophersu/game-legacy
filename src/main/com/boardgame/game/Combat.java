@@ -8,21 +8,6 @@ final class Combat {
 	private final Location source;
 	private final Location target;
 	
-	private Phase phase;
-	
-	enum Phase {
-		RESOLUTION(null),
-		BONUS(RESOLUTION),
-		CARD(BONUS),
-		ASSIST(CARD);
-		
-		private Phase nextPhase;
-		
-		Phase(Phase next) {
-			this.nextPhase = next;
-		}
-	}
-	
 	Combat(Collection<AbstractUnit> attackingUnits, Location source, 
 			Location target) {
 		assert source.getActionToken() != null;
@@ -47,12 +32,6 @@ final class Combat {
 		defenseStrategy = new CombatStrategy(defendingTokenBonus);
 		this.source = source;
 		this.target = target;
-		
-		this.phase = Phase.ASSIST;
-	}
-	
-	Phase getPhase() {
-		return phase;
 	}
 	
 	Location getSource() {
@@ -79,19 +58,10 @@ final class Combat {
 		assert combatCard != null;
 		
 		getStrategy(isAttacker).combatCard = combatCard;
-		
-		if (attackStrategy.combatCard != null && 
-				defenseStrategy.combatCard != null) {
-			nextPhase();
-		}
 	}
 	
 	void useCombatBonus(boolean onAttacker) {
 		getStrategy(onAttacker).combatBonus = 1;
-	}
-	
-	void nextPhase() {
-		phase = phase.nextPhase;
 	}
 	
 	private CombatStrategy getStrategy(boolean isAttacker) {
