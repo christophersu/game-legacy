@@ -1,80 +1,66 @@
 package com.boardgame.game;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import com.boardgame.game.Location.Terrain;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 abstract class AbstractActionToken {
-	protected final boolean isSpecial;
-	private final TokenString tokenString;
-	private final Integer priority;
+	static final int UNUSABLE_MARKER = Integer.MAX_VALUE;
+	
+	private final boolean isSpecial;
+	private final int priority;
 
-	private final Map<Terrain, Set<Terrain>> sourceTerrainsToValidTargetTerrains;
+	private final Multimap<Terrain, Terrain> sourcesToValidTargets;
 	
 	enum TokenString {
-		BLANK,
+		BLANK, 
 		BAD_MOVE, 
 		NORMAL_MOVE, 
 		MOVE_S, 
-		INVEST_A, 
-		INVEST_B, 
+		INVEST, 
 		INVEST_S, 
-		BLITZ_A,  
-		BLITZ_B, 
-		BLITZ_S, 
-		DEFENSE_A, 
-		DEFENSE_B, 
+		BLITZ, 
+		BLITZ_S,
+		DEFENSE, 
 		DEFENSE_S, 
-		ASSIST_A,  
-		ASSIST_B, 
+		ASSIST, 
 		ASSIST_S
 	}
 	
-	AbstractActionToken(boolean isSpecial, TokenString tokenString, 
-			Integer priority) {
-		assert tokenString != null;
-		assert priority >= 0;
-		
+	AbstractActionToken(boolean isSpecial, int priority) {
 		this.isSpecial = isSpecial;
-		this.tokenString = tokenString;
 		this.priority = priority;
-		this.sourceTerrainsToValidTargetTerrains = 
-				findSourceTerrainsToValidTargetTerrains();
+		this.sourcesToValidTargets = findSourceTerrainsToValidTargetTerrains();
 	}
 	
-	private Map<Terrain, Set<Terrain>> findSourceTerrainsToValidTargetTerrains() {
-		Map<Terrain, Set<Terrain>> sourceTerrainsToValidTargetTerrains = 
-				new HashMap<>();
+	private Multimap<Terrain, Terrain> findSourceTerrainsToValidTargetTerrains() {
+		Multimap<Terrain, Terrain> sourcesToValidTargets = HashMultimap.create();
 		
-		for (Terrain terrain : Terrain.values()) {
-			Set<Terrain> targetTerrains = getValidTargetTerrains(terrain);
-			sourceTerrainsToValidTargetTerrains.put(terrain, targetTerrains);
+		for (Terrain source : Terrain.values()) {
+			Set<Terrain> validTargets = getValidTargetTerrains(source);
+			assert validTargets != null;
 			
+			sourcesToValidTargets.putAll(source, validTargets);
 		}
 		
-		return sourceTerrainsToValidTargetTerrains;
+		return sourcesToValidTargets;
 	}
 	
-	protected abstract Set<Terrain> getValidTargetTerrains(Terrain terrain);
-	
-	Integer getPriority() {
-		return priority;
-	}
+	abstract Set<Terrain> getValidTargetTerrains(Terrain source);
 	
 	Set<Location> findValidLocationTargets(Location sourceLocation) {
 		assert sourceLocation != null;
 		
 		Set<Location> validLocationTargets = new HashSet<>();
 		
-		for (Location adjacentLocation : sourceLocation.getAdjacentLocations()) {
+		for (Location adjacentLocation : findAccessibleTargets(sourceLocation)) {
 			Terrain sourceTerrain = sourceLocation.getTerrain();
-			Set<Terrain> validTerrains = 
-					sourceTerrainsToValidTargetTerrains.get(sourceTerrain);
-			assert validTerrains != null;
+			Collection<Terrain> validTerrains = sourcesToValidTargets.get(sourceTerrain);
+
 			Terrain adjacentTerrain = adjacentLocation.getTerrain();
 			
 			if (validTerrains.contains(adjacentTerrain) &&
@@ -86,22 +72,23 @@ abstract class AbstractActionToken {
 		return validLocationTargets;
 	}
 	
-	boolean act(Game game, Location tokenLocation, Location target, 
-			Collection<AbstractUnit> unitsInvolved) {
+	Set<Location> findAccessibleTargets(Location source) {
+		return source.getAdjacentLocations();
+	}
+	
+	boolean act(Game game, Location source, Location target, Collection<AbstractUnit> unitsInvolved) {
 		assert game != null;
-		assert tokenLocation != null;
+		assert source != null;
 		assert target != null;
-		
-		assert tokenLocation.getActionToken() == this;
+		assert unitsInvolved == null;
+		assert source.getActionToken() == this;
 		
 		boolean success = false;
 		
-		Set<Terrain> validTargetTerrains = 
-				sourceTerrainsToValidTargetTerrains.get(tokenLocation.getTerrain());
+		Collection<Terrain> validTargets = sourcesToValidTargets.get(source.getTerrain());
 		
-		if (validTargetTerrains.contains(target.getTerrain()) && 
-				isValidTargeting(tokenLocation, target)) {
-			success = actSpecifically(game, tokenLocation, target, unitsInvolved);
+		if (validTargets.contains(target.getTerrain()) && isValidTargeting(source, target)) {
+			success = actSpecifically(game, source, target, unitsInvolved);
 		}
 		
 		return success;
@@ -111,19 +98,32 @@ abstract class AbstractActionToken {
 		return false;
 	}
 	
-	int getCombatBonus() {
-		return 0;
-	}
-	
-	abstract boolean actSpecifically(Game game, Location tokenLocation, 
-			Location target, Collection<AbstractUnit> unitsInvolved);
+	abstract boolean actSpecifically(Game game, Location source, Location target, Collection<AbstractUnit> unitsInvolved);
 	
 	abstract boolean isValidTargeting(Location source, Location target);
 	
 	abstract boolean isBlitzable(boolean isBlitzSpecial);
 	
+	boolean getIsSpecial() {
+		return isSpecial;
+	}
+	
+	int getPriority() {
+		return priority;
+	}
+	
+	boolean isUsable() {
+		return priority != UNUSABLE_MARKER;
+	}
+	
+	int getCombatBonus() {
+		return 0;
+	}
+	
+	abstract TokenString getTokenString();
+	
 	@Override
 	public String toString() {
-		return tokenString.toString();
+		return getTokenString().toString();
 	}
 }

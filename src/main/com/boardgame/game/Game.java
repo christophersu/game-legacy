@@ -170,7 +170,7 @@ public final class Game {
 			throw new IllegalStateException("Faction does not have token");
 		}
 		
-		if (token.isSpecial && player.getNumSpecialTokensUsed() + 1 == 
+		if (token.getIsSpecial() && player.getNumSpecialTokensUsed() + 1 == 
 				gameState.getNumSpecialTokensForFaction(faction)) {
 			throw new IllegalStateException("Can't use more special tokens");
 		}
@@ -649,7 +649,7 @@ public final class Game {
 			
 			int tokenPriority = -1;
 			
-			if (token.getPriority() != null) {
+			if (token.isUsable()) {
 				tokenPriority = token.getPriority();
 			}
 			
@@ -681,8 +681,7 @@ public final class Game {
 		Set<Location> actableLocations = new HashSet<>();
 		
 		for (Location location : gameState.getLocations()) {
-			if (location.hasToken() && 
-					location.getActionToken().getPriority() != null) {
+			if (location.hasToken() && location.getActionToken().isUsable()) {
 				actableLocations.add(location);
 			}
 		}

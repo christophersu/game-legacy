@@ -4,11 +4,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.boardgame.game.AbstractActionToken.TokenString;
 import com.boardgame.game.Location.Terrain;
 
 final class BlitzToken extends AbstractActionToken {
-	BlitzToken(boolean isSpecial, TokenString tokenString) {
-		super(isSpecial, tokenString, 0);
+	private static final int PRIORITY = 0;
+	
+	BlitzToken(boolean isSpecial) {
+		super(isSpecial, PRIORITY);
 	}
 
 	@Override
@@ -23,7 +26,7 @@ final class BlitzToken extends AbstractActionToken {
 		boolean targetHasOtherOwner = sourceOwner != target.getOwner();
 		
 		return targetHasOtherOwner && target.hasToken() && 
-				target.getActionToken().isBlitzable(isSpecial);
+				target.getActionToken().isBlitzable(getIsSpecial());
 	}
 
 	@Override
@@ -60,6 +63,11 @@ final class BlitzToken extends AbstractActionToken {
 		game.removeTokenHelper(tokenLocation);
 		
 		return true;
+	}
+
+	@Override
+	TokenString getTokenString() {
+		return getIsSpecial() ? TokenString.BLITZ_S : TokenString.BLITZ;
 	}
 }
 

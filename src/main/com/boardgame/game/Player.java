@@ -167,7 +167,7 @@ final class Player {
 		
 		boolean result = tokens.remove(token);
 
-		if (token.isSpecial) {
+		if (token.getIsSpecial()) {
 			numSpecialTokensUsed++;
 		}
 		
@@ -183,7 +183,7 @@ final class Player {
 		boolean result = tokens.add(token);
 		assert result;
 		
-		if (token.isSpecial) {
+		if (token.getIsSpecial()) {
 			numSpecialTokensUsed--;
 		}
 		

@@ -2,9 +2,13 @@ package com.boardgame.game;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
+
+import com.boardgame.game.Location.Terrain;
 
 class BoardOperations {	
 	private static final int MIN_SUPPLY_CONSIDERATION = 2;
@@ -62,5 +66,33 @@ class BoardOperations {
 		}
 		
 		return true;
+	}
+	
+	static Set<Location> findAdjacentAndShipAccessibleLocations(Location origin) {
+		assert origin != null;
+		assert origin.getOwner() != null;
+		assert origin.getTerrain() == Terrain.LAND;
+		
+		Set<Location> accessibleLocations = new HashSet<>();
+		
+		Queue<Location> unvisitedLocations = new LinkedList<>();
+		unvisitedLocations.addAll(origin.getAdjacentLocations());
+		
+		while (!unvisitedLocations.isEmpty()) {
+			Location current = unvisitedLocations.remove();
+			accessibleLocations.add(current);
+			
+			//boat transport
+			if (current.getTerrain() == Terrain.SEA && current.hasUnits()) {
+				for (Location adjacent : current.getAdjacentLocations()) {
+					if (!accessibleLocations.contains(adjacent) && 
+							!unvisitedLocations.contains(adjacent)) {
+						unvisitedLocations.add(adjacent);
+					}
+				}
+			}
+		}
+		
+		return accessibleLocations;
 	}
 }

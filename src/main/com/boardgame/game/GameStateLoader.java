@@ -41,21 +41,37 @@ public final class GameStateLoader {
 		unitStringsToUnits.put(UnitString.SHIP, new ShipUnit());
 		unitStringsToUnits.put(UnitString.BASE_ASSAULT, new BaseAssaultUnit());
 		
-		tokenStringsToTokens.put(TokenString.BAD_MOVE, new MoveToken(false, TokenString.BAD_MOVE, -1));
-		tokenStringsToTokens.put(TokenString.NORMAL_MOVE, new MoveToken(false, TokenString.NORMAL_MOVE, 0));
-		tokenStringsToTokens.put(TokenString.MOVE_S, new MoveToken(true, TokenString.MOVE_S, 1));
-		tokenStringsToTokens.put(TokenString.INVEST_A, new InvestToken(false, TokenString.INVEST_A));
-		tokenStringsToTokens.put(TokenString.INVEST_B, new InvestToken(false, TokenString.INVEST_B));
-		tokenStringsToTokens.put(TokenString.INVEST_S, new InvestToken(true, TokenString.INVEST_S));
-		tokenStringsToTokens.put(TokenString.BLITZ_A, new BlitzToken(false, TokenString.BLITZ_A));
-		tokenStringsToTokens.put(TokenString.BLITZ_B, new BlitzToken(false, TokenString.BLITZ_B));
-		tokenStringsToTokens.put(TokenString.BLITZ_S, new BlitzToken(true, TokenString.BLITZ_S));
-		tokenStringsToTokens.put(TokenString.DEFENSE_A, new DefenseToken(false, TokenString.DEFENSE_A, 1));
-		tokenStringsToTokens.put(TokenString.DEFENSE_B, new DefenseToken(false, TokenString.DEFENSE_B, 1));
-		tokenStringsToTokens.put(TokenString.DEFENSE_S, new DefenseToken(true, TokenString.DEFENSE_S, 2));
-		tokenStringsToTokens.put(TokenString.ASSIST_A, new AssistToken(false, TokenString.ASSIST_A, 1));
-		tokenStringsToTokens.put(TokenString.ASSIST_B, new AssistToken(false, TokenString.ASSIST_B, 1));
-		tokenStringsToTokens.put(TokenString.ASSIST_S, new AssistToken(true, TokenString.ASSIST_S, 2));
+		AbstractActionToken token;
+		token = new MoveToken(false, -1);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new MoveToken(false, 0);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new MoveToken(true, 1);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new InvestToken(false);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new InvestToken(false);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new InvestToken(true);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new BlitzToken(false);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new BlitzToken(false);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new BlitzToken(true);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new DefenseToken(false, 1);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new DefenseToken(false, 1);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new DefenseToken(true, 2);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new AssistToken(false, 1);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new AssistToken(false, 1);
+		tokenStringsToTokens.put(token.getTokenString(), token);
+		token = new AssistToken(true, 2);
+		tokenStringsToTokens.put(token.getTokenString(), token);
 	}
 	
 	enum GameType {

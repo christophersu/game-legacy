@@ -6,12 +6,12 @@ import java.util.Set;
 
 import com.boardgame.game.Location.Terrain;
 
-final class MoveToken extends CombatToken {
-	MoveToken(boolean isSpecial, TokenString tokenString, int strength) {
-		super(isSpecial, tokenString, strength, 1);
-	}
+final class MoveToken extends AbstractCombatToken {
+	private static final int PRIORITY = 1;
 	
-	//don't forget moving through boats
+	MoveToken(boolean isSpecial, int strength) {
+		super(isSpecial, strength, PRIORITY);
+	}
 
 	@Override
 	protected Set<Terrain> getValidTargetTerrains(Terrain terrain) {
@@ -35,8 +35,12 @@ final class MoveToken extends CombatToken {
 	}
 	
 	@Override
-	int getCombatBonus() {
-		return strength;
+	Set<Location> findAccessibleTargets(Location source) {
+		if (source.getTerrain() == Terrain.LAND) {
+			return BoardOperations.findAdjacentAndShipAccessibleLocations(source);	
+		}
+	
+		return super.findAccessibleTargets(source);
 	}
 
 	@Override
@@ -74,5 +78,14 @@ final class MoveToken extends CombatToken {
 		}
 		
 		return success;
+	}
+	
+	@Override
+	TokenString getTokenString() {
+		if (getIsSpecial()) {
+			return TokenString.MOVE_S;
+		}
+		
+		return getStrength() < 0 ? TokenString.BAD_MOVE : TokenString.NORMAL_MOVE;
 	}
 }

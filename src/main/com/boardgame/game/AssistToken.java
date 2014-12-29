@@ -6,9 +6,11 @@ import java.util.Set;
 
 import com.boardgame.game.Location.Terrain;
 
-final class AssistToken extends CombatToken {
-	AssistToken(boolean isSpecial, TokenString tokenString, int strength) {
-		super(isSpecial, tokenString, strength, null);
+final class AssistToken extends AbstractCombatToken {
+	private static final int PRIORITY = AbstractActionToken.UNUSABLE_MARKER;
+	
+	AssistToken(boolean isSpecial, int strength) {
+		super(isSpecial, strength, PRIORITY);
 	}
 
 	@Override
@@ -35,7 +37,7 @@ final class AssistToken extends CombatToken {
 	
 	@Override
 	boolean isUsableDuringCombat() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -53,5 +55,10 @@ final class AssistToken extends CombatToken {
 			Collection<AbstractUnit> unitsInvolved) {
 		throw new UnsupportedOperationException();
 		//make sure unitsInvolved is empty or contains every non routed unit
+	}
+	
+	@Override
+	TokenString getTokenString() {
+		return getIsSpecial() ? TokenString.ASSIST_S : TokenString.ASSIST;
 	}
 }

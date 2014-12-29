@@ -6,19 +6,16 @@ import java.util.Set;
 
 import com.boardgame.game.Location.Terrain;
 
-final class DefenseToken extends CombatToken {
-	DefenseToken(boolean isSpecial, TokenString tokenString, int strength) {
-		super(isSpecial, tokenString, strength, null);
+final class DefenseToken extends AbstractCombatToken {
+	private static final int PRIORITY = AbstractActionToken.UNUSABLE_MARKER;
+	
+	DefenseToken(boolean isSpecial, int strength) {
+		super(isSpecial, strength, PRIORITY);
 	}
 
 	@Override
 	protected Set<Terrain> getValidTargetTerrains(Terrain terrain) {
 		return new HashSet<>();
-	}
-	
-	@Override
-	int getCombatBonus() {
-		return strength;
 	}
 
 	@Override
@@ -35,5 +32,10 @@ final class DefenseToken extends CombatToken {
 	boolean actSpecifically(Game game, Location tokenLocation, Location target,
 			Collection<AbstractUnit> unitsInvolved) {
 		return true;
+	}
+	
+	@Override
+	TokenString getTokenString() {
+		return getIsSpecial() ? TokenString.DEFENSE_S : TokenString.DEFENSE;
 	}
 }

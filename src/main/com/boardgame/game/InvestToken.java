@@ -7,8 +7,10 @@ import java.util.Set;
 import com.boardgame.game.Location.Terrain;
 
 final class InvestToken extends AbstractActionToken {
-	InvestToken(boolean isSpecial, TokenString tokenString) {
-		super(isSpecial, tokenString, 2);
+	private static final int PRIORITY = 2;
+	
+	InvestToken(boolean isSpecial) {
+		super(isSpecial, PRIORITY);
 	}
 
 	@Override
@@ -39,5 +41,10 @@ final class InvestToken extends AbstractActionToken {
 		player.moveCashFromPoolToHand(tokenLocation.getInvest() + 1);
 
 		throw new UnsupportedOperationException("Need to implement unit creation");
+	}
+	
+	@Override
+	TokenString getTokenString() {
+		return getIsSpecial() ? TokenString.INVEST_S : TokenString.INVEST;
 	}
 }
